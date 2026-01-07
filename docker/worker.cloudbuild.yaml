@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        "build",
+        "-f",
+        "docker/Dockerfile.worker",
+        "-t",
+        "gcr.io/$PROJECT_ID/vertiv-worker",
+        ".",
+      ]
+images:
+  - "gcr.io/$PROJECT_ID/vertiv-worker"
+

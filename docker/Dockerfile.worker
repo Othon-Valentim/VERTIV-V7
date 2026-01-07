@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install backend dependencies first (for shared modules)
+COPY apps/backend/requirements.txt /tmp/backend-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/backend-requirements.txt
+
+# Copy and install worker dependencies
+COPY apps/worker/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Backend Code for Shared Modules
+COPY apps/backend /apps/backend
+
+# Copy Worker Code
+COPY apps/worker /app
+
+# Create non-root user
+RUN adduser --disabled-password --gecos "" vertivuser
+USER vertivuser
+
+CMD ["uvicorn", "core.main:app", "--host", "0.0.0.0", "--port", "8080"]

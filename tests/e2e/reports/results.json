@@ -1,0 +1,908 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\playwright.config.ts",
+    "rootDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "tests/e2e/reports"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/e2e/reports/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "C:/Users/Jussara Thomaz/Documents/VERTIV_V6_GLOBAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "test_wizard_validation_errors.spec.ts",
+      "file": "test_wizard_validation_errors.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Wizard P1 Required Field Validation",
+          "file": "test_wizard_validation_errors.spec.ts",
+          "line": 55,
+          "column": 6,
+          "specs": [
+            {
+              "title": "1. Empty form shows error on submit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13952,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:48:34.488Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-84612a6fc0b916fdac91",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "2. Missing municipality shows error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10306,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:48:49.832Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-dd65d55ca884500cee9c",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 85,
+              "column": 7
+            },
+            {
+              "title": "3. Missing area shows error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9781,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:00.189Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-65611170b71e07afce21",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 114,
+              "column": 7
+            },
+            {
+              "title": "4. Missing price shows error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:10.008Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-c2bdc97c1d07cadb1486",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 142,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Wizard P1 Invalid Value Validation",
+          "file": "test_wizard_validation_errors.spec.ts",
+          "line": 172,
+          "column": 6,
+          "specs": [
+            {
+              "title": "5. Text in numeric field (area) is rejected",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7325,
+                      "error": {
+                        "message": "Error: locator.fill: Error: Cannot type text into input[type=number]\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder=\"0.00\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\" type=\"number\" placeholder=\"0.00\" class=\"w-full h-10 px-3 rounded-md border border-input bg-background/50 font-mono focus:outline-none focus:ring-1 focus:ring-primary\"/>\u001b[22m\n\u001b[2m    - fill(\"abc\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n",
+                        "stack": "Error: locator.fill: Error: Cannot type text into input[type=number]\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder=\"0.00\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\" type=\"number\" placeholder=\"0.00\" class=\"w-full h-10 px-3 rounded-md border border-input bg-background/50 font-mono focus:outline-none focus:ring-1 focus:ring-primary\"/>\u001b[22m\n\u001b[2m    - fill(\"abc\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:186:23",
+                        "location": {
+                          "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                          "column": 23,
+                          "line": 186
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 184 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m areaInput\u001b[33m.\u001b[39misVisible()) {\n \u001b[90m 185 |\u001b[39m       \u001b[90m// Type text - HTML number inputs should reject non-numeric\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m areaInput\u001b[33m.\u001b[39mfill(\u001b[32m'abc'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 187 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m\n \u001b[90m 189 |\u001b[39m       \u001b[90m// Get the value - should be empty or only numbers\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                            "column": 23,
+                            "line": 186
+                          },
+                          "message": "Error: locator.fill: Error: Cannot type text into input[type=number]\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder=\"0.00\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\" type=\"number\" placeholder=\"0.00\" class=\"w-full h-10 px-3 rounded-md border border-input bg-background/50 font-mono focus:outline-none focus:ring-1 focus:ring-primary\"/>\u001b[22m\n\u001b[2m    - fill(\"abc\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n\n\n  184 |     if (await areaInput.isVisible()) {\n  185 |       // Type text - HTML number inputs should reject non-numeric\n> 186 |       await areaInput.fill('abc');\n      |                       ^\n  187 |       await page.waitForTimeout(500);\n  188 |\n  189 |       // Get the value - should be empty or only numbers\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:186:23"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:20.288Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-5a8d6-eric-field-area-is-rejected-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-5a8d6-eric-field-area-is-rejected-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                        "column": 23,
+                        "line": 186
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-c7722613cf1a08f29578",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 180,
+              "column": 7
+            },
+            {
+              "title": "6. Negative area value handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11260,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:31.224Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-aab3e0ca81de34d7186c",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 199,
+              "column": 7
+            },
+            {
+              "title": "7. Zero value handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10977,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:43.396Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-27bd16e4c2bae9496c47",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 229,
+              "column": 7
+            },
+            {
+              "title": "8. Very large values handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10954,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:49:54.399Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-9b4f8e597cc83eecadbf",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 262,
+              "column": 7
+            },
+            {
+              "title": "9. Special characters in municipality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11517,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:50:05.397Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-ad5873408eaf3b114960",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 292,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Wizard P1 Error Correction",
+          "file": "test_wizard_validation_errors.spec.ts",
+          "line": 324,
+          "column": 6,
+          "specs": [
+            {
+              "title": "10. Correct errors and submit successfully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 14932,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:373:66",
+                        "location": {
+                          "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                          "column": 66,
+                          "line": 373
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 371 |\u001b[39m\n \u001b[90m 372 |\u001b[39m       \u001b[90m// Valid submission should proceed\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 373 |\u001b[39m       expect(hasResult \u001b[33m||\u001b[39m hasDecision \u001b[33m||\u001b[39m isLoading \u001b[33m||\u001b[39m \u001b[33m!\u001b[39mhadError)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 374 |\u001b[39m\n \u001b[90m 375 |\u001b[39m       \u001b[36mawait\u001b[39m takeScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'validation_corrected_submit'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 376 |\u001b[39m     }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                            "column": 66,
+                            "line": 373
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  371 |\n  372 |       // Valid submission should proceed\n> 373 |       expect(hasResult || hasDecision || isLoading || !hadError).toBeTruthy();\n      |                                                                  ^\n  374 |\n  375 |       await takeScreenshot(page, 'validation_corrected_submit');\n  376 |     }\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:373:66"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:50:16.950Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-d9486-ors-and-submit-successfully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-d9486-ors-and-submit-successfully-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                        "column": 66,
+                        "line": 373
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-7cc54510d5360f944d57",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 332,
+              "column": 7
+            },
+            {
+              "title": "11. Use example data loads correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8764,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:50:35.518Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-85f593fc7afb3b3126da",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 379,
+              "column": 7
+            },
+            {
+              "title": "12. Error message disappears after correction",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15656,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:429:40",
+                        "location": {
+                          "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                          "column": 40,
+                          "line": 429
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 427 |\u001b[39m         \u001b[90m// Either error is gone or we have results\u001b[39m\n \u001b[90m 428 |\u001b[39m         \u001b[36mconst\u001b[39m errorGone \u001b[33m=\u001b[39m \u001b[33m!\u001b[39m(\u001b[36mawait\u001b[39m errorContainer\u001b[33m.\u001b[39misVisible()\u001b[33m.\u001b[39m\u001b[36mcatch\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[36mfalse\u001b[39m))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 429 |\u001b[39m         expect(errorGone \u001b[33m||\u001b[39m hasResult)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 430 |\u001b[39m\n \u001b[90m 431 |\u001b[39m         \u001b[36mawait\u001b[39m takeScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'validation_error_cleared'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 432 |\u001b[39m       }\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                            "column": 40,
+                            "line": 429
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  427 |         // Either error is gone or we have results\n  428 |         const errorGone = !(await errorContainer.isVisible().catch(() => false));\n> 429 |         expect(errorGone || hasResult).toBeTruthy();\n      |                                        ^\n  430 |\n  431 |         await takeScreenshot(page, 'validation_error_cleared');\n  432 |       }\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:429:40"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:50:45.125Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-c04fd-disappears-after-correction-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-c04fd-disappears-after-correction-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                        "column": 40,
+                        "line": 429
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-b5eff95d2109711a015e",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 405,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Wizard Step Navigation Validation",
+          "file": "test_wizard_validation_errors.spec.ts",
+          "line": 438,
+          "column": 6,
+          "specs": [
+            {
+              "title": "13. Can navigate between steps",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9390,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:51:03.429Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-1ff44e8cc04e9003ed2d",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 446,
+              "column": 7
+            },
+            {
+              "title": "14. Previous button disabled on first step",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7086,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:51:13.454Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-a722058a0667ac2b3e37",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 466,
+              "column": 7
+            },
+            {
+              "title": "15. Step indicators show correct state",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 7139,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"bg-primary\"\u001b[39m\nReceived string:    \u001b[31m\"h-2 bg-muted rounded-full overflow-hidden\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"bg-primary\"\u001b[39m\nReceived string:    \u001b[31m\"h-2 bg-muted rounded-full overflow-hidden\"\u001b[39m\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:489:21",
+                        "location": {
+                          "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                          "column": 21,
+                          "line": 489
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 487 |\u001b[39m     \u001b[36mconst\u001b[39m firstDot \u001b[33m=\u001b[39m stepDots\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 488 |\u001b[39m     \u001b[36mconst\u001b[39m classes \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m firstDot\u001b[33m.\u001b[39mgetAttribute(\u001b[32m'class'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 489 |\u001b[39m     expect(classes)\u001b[33m.\u001b[39mtoContain(\u001b[32m'bg-primary'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 490 |\u001b[39m\n \u001b[90m 491 |\u001b[39m     \u001b[36mawait\u001b[39m takeScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'validation_step_indicators'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 492 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                            "column": 21,
+                            "line": 489
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"bg-primary\"\u001b[39m\nReceived string:    \u001b[31m\"h-2 bg-muted rounded-full overflow-hidden\"\u001b[39m\n\n  487 |     const firstDot = stepDots.first();\n  488 |     const classes = await firstDot.getAttribute('class');\n> 489 |     expect(classes).toContain('bg-primary');\n      |                     ^\n  490 |\n  491 |     await takeScreenshot(page, 'validation_step_indicators');\n  492 |   });\n    at C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts:489:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:51:20.584Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-54c24-dicators-show-correct-state-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test-results\\test_wizard_validation_err-54c24-dicators-show-correct-state-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL\\tests\\e2e\\test_wizard_validation_errors.spec.ts",
+                        "column": 21,
+                        "line": 489
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-072a23a68c0929d0e6bd",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 478,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Wizard Form Accessibility",
+          "file": "test_wizard_validation_errors.spec.ts",
+          "line": 496,
+          "column": 6,
+          "specs": [
+            {
+              "title": "16. Form fields have labels",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7583,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:51:30.485Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-e7e35f93d597064721ee",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 504,
+              "column": 7
+            },
+            {
+              "title": "17. Inputs have proper types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7135,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-12-26T03:51:38.860Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5174f56eb81c57acd7eb-6895a94136aee895fcbd",
+              "file": "test_wizard_validation_errors.spec.ts",
+              "line": 522,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-12-26T03:48:32.313Z",
+    "duration": 194266.05800000002,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

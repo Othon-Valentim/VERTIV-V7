@@ -1,0 +1,25 @@
+# VERTIV v6.1.0-SINGULARITY Backend Dependencies
+# Pinned versions for reproducible builds
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+
+# Security
+PyJWT==2.10.1
+
+# Data Processing
+polars==1.17.1
+numpy==2.2.1
+numpy-financial==1.0.0
+scipy==1.15.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Google Cloud
+google-cloud-tasks==2.18.0
+
+# Database
+supabase==2.11.0

@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+mcp
+pydantic
+httpx
+beautifulsoup4
+google-generativeai
+rasterio
+numpy
+google-cloud-storage
+pypdf

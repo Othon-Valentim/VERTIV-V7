@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(npm search:*)",
+      "Bash(timeout 5 npx:*)",
+      "Bash(timeout 3 npx:*)",
+      "Bash(node -e:*)",
+      "Bash(npm install)",
+      "Bash(curl:*)",
+      "Bash(.venv/Scripts/pip:*)",
+      "Bash(npm ls:*)",
+      "Bash(timeout 30 npm run dev)",
+      "Bash(API_URL=https://api.vertiv.tech npx playwright test:*)",
+      "Bash(BASE_URL=http://localhost:3002 API_URL=https://api.vertiv.tech npx playwright test:*)",
+      "Bash(BASE_URL=https://vertiv.tech API_URL=https://api.vertiv.tech npx playwright test:*)",
+      "Bash(BASE_URL=http://localhost:3002 npx playwright test:*)",
+      "Bash(cat:*)",
+      "Bash(if not exist \"C:\\\\Users\\\\Jussara Thomaz\\\\Documents\\\\VERTIV_V6_GLOBAL\\\\tests\\\\e2e\\\\screenshots\" mkdir \"C:\\\\Users\\\\Jussara Thomaz\\\\Documents\\\\VERTIV_V6_GLOBAL\\\\tests\\\\e2e\\\\screenshots\")",
+      "Bash(cd:*)",
+      "Bash(mkdir:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(del \"C:\\\\Users\\\\Jussara Thomaz\\\\Documents\\\\VERTIV_V6_GLOBAL\\\\apps\\\\frontend\\\\nul\")"
+    ]
+  }
+}

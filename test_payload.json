@@ -1,0 +1,23 @@
+{
+  "id": "PROJ-001",
+  "name": "Vertiv Tower",
+  "esg": {
+    "certification": "LEED",
+    "green_premium": 500000,
+    "brown_discount": 0
+  },
+  "financial_input": {
+    "total_units": 100,
+    "sales_price_avg": 500000,
+    "construction_cost_total": 30000000,
+    "land_cost": 5000000,
+    "development_months": 36
+  },
+  "real_options": {
+    "land_value_current": 5000000,
+    "development_cost_forcing": 30000000,
+    "time_to_permit_years": 2,
+    "volatility": 0.2,
+    "risk_free_rate": 0.11
+  }
+}

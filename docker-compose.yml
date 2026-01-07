@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/backend/src:/app/src
+    environment:
+      - ENV=development
+      - PORT=8000
+      - WORKER_URL=http://worker:8000/tasks/process-simulation
+    networks:
+      - vertiv-network
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.frontend
+      target: dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend/src:/app/src
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    networks:
+      - vertiv-network
+    depends_on:
+      - backend
+
+  worker:
+    build:
+      context: ./apps/worker
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./apps/worker/core:/app/core
+      # Mount backend code to /apps/backend so the relative import works
+      - ./apps/backend:/apps/backend
+    environment:
+      - ENV=development
+      - PORT=8000
+    networks:
+      - vertiv-network
+
+  agents:
+    build:
+      context: ./apps/agents
+      dockerfile: Dockerfile
+    # FastMCP/SSE usually needs HTTP. Assuming server.py is adapted for Uvicorn or similar if explicit port needed.
+    # For now, mcp.run() implies stdio communication usually, but for a microservice architecture we might want HTTP/SSE.
+    # Let's override command to run with uvicorn assuming we adapt server.py or just keep it running for now.
+    # PROD Note: FastMCP over SSE is ideal.
+    ports:
+      - "8002:8000"
+    environment:
+      - ENV=development
+    networks:
+      - vertiv-network
+
+networks:
+  vertiv-network:
+    driver: bridge

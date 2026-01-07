@@ -1,0 +1,49 @@
+{
+  "name": "vertiv-v6-global",
+  "version": "6.1.0",
+  "description": "VERTIV v6.0 Global Edition - Real Estate Viability Analysis Platform",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "dev:backend": "cd apps/backend && uvicorn src.api.main:app --reload --port 8000",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd apps/frontend && npm run build",
+    "start": "npm run start:frontend",
+    "start:frontend": "cd apps/frontend && npm run start",
+    "test": "npm run test:e2e",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:chrome": "playwright test --project=chromium",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:webkit": "playwright test --project=webkit",
+    "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:e2e:report": "playwright show-report tests/e2e/reports",
+    "test:e2e:codegen": "playwright codegen http://localhost:3000",
+    "playwright:install": "playwright install --with-deps",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.11.0",
+    "concurrently": "^8.2.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "real-estate",
+    "viability",
+    "analysis",
+    "tiv",
+    "investment"
+  ],
+  "author": "VERTIV Development Team",
+  "license": "MIT"
+}

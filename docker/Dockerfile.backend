@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Requirements
+COPY apps/backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Code
+COPY apps/backend /app/src
+# Main entrypoint adjustment if needed, assuming apps/backend/src structure:
+# We need to ensure pythonpath includes /app/src or /app
+ENV PYTHONPATH=/app/src
+
+# Create non-root user
+RUN adduser --disabled-password --gecos "" vertivuser
+USER vertivuser
+
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8080"]

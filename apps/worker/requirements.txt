@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+polars
+pydantic
+supabase
+numpy
+scipy
+numpy-financial
