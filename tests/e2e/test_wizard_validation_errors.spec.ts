@@ -18,8 +18,8 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 // Test user credentials
 const TEST_USER = {
-  email: process.env.TEST_EMAIL || 'test@vertiv.tech',
-  password: process.env.TEST_PASSWORD || 'Test@2024!'
+  email: process.env.TEST_EMAIL || 'othonciclo21@gmail.com',
+  password: process.env.TEST_PASSWORD || 'Theo@02052018'
 };
 
 // Valid test data for P1 step

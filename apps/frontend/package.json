@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:types": "npx openapi-typescript http://localhost:8000/openapi.json -o src/types/api.generated.ts",
+    "generate:types:prod": "npx openapi-typescript https://api.vertiv.tech/openapi.json -o src/types/api.generated.ts",
+    "prebuild": "npm run generate:types || echo 'Warning: Could not generate types. Backend may be offline.'"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
@@ -32,6 +35,7 @@
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
+    "openapi-typescript": "^6.7.0",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"

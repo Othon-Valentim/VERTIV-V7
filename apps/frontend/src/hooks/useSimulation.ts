@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { api } from '@/lib/api-client';
+
 
 export interface SimulationResult {
   id: string;
@@ -19,8 +21,7 @@ export function useSimulation(simulationId: string | null) {
     const fetchSimulation = async () => {
       setLoading(true);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUrl}/simulation/${simulationId}`);
+        const res = await api.get(`/simulation/${simulationId}`);
         
         if (!res.ok) {
           throw new Error(`Failed to fetch simulation: ${res.statusText}`);
@@ -56,9 +57,7 @@ export function useLatestSimulation() {
     const fetchLatest = async () => {
       setLoading(true);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        // Fetch list of 1
-        const res = await fetch(`${apiUrl}/simulations/recent?limit=1`);
+        const res = await api.get(`/simulations/recent?limit=1`);
         if (!res.ok) throw new Error("Failed to fetch recent simulations");
         
         const list = await res.json();

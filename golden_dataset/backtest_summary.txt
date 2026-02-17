@@ -1,0 +1,21 @@
+VERTIV V7 SHADOW BACKTEST — 2026-02-17T11:34:58.345880
+Projetos: 15 | PASS: 15 | FAIL: 0
+Score médio: 100.0 | VPL MAPE médio: 0.00% | Max: 0.00%
+
+ID                        VPL V7         VPL Golden     MAPE   Score  Viable V7  Viable Gold Triage                   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+GD-PUB-001         19,016,027.42      19,016,027.42    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-002         -4,404,735.44      -4,404,735.44    0.00%  100.0      False        False AUTONOMOUS_SENTENCED     
+GD-PUB-003         -9,071,363.92      -9,071,363.92    0.00%  100.0      False        False AUTONOMOUS_SENTENCED     
+GD-PUB-004         11,234,414.37      11,234,414.37    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-005        -44,699,540.83     -44,699,540.83    0.00%  100.0      False        False AUTONOMOUS_SENTENCED     
+GD-PUB-006         16,007,168.06      16,007,168.06    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-007          1,268,009.34       1,268,009.34    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-008         24,423,786.44      24,423,786.44    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-009          9,625,062.55       9,625,062.55    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-010         11,893,474.78      11,893,474.78    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-011          9,435,670.41       9,435,670.41    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-012         17,103,820.83      17,103,820.83    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-013          2,890,251.97       2,890,251.97    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-014          8,735,410.82       8,735,410.82    0.00%  100.0       True         True AUTONOMOUS_SENTENCED     
+GD-PUB-015        -58,195,606.23     -58,195,606.23    0.00%  100.0      False        False AUTONOMOUS_SENTENCED     

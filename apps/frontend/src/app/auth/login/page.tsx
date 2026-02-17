@@ -42,28 +42,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-primary relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl" />
+    <div className="min-h-screen seamless-bg flex">
+      {/* Left Side - Branding (Monolithic) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
+        {/* Monolithic Background Texture */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.02)_0%,transparent_50%)]" />
 
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+            <div className="h-12 w-12 bg-white/10 backdrop-blur-sm rounded-sm flex items-center justify-center border border-white/10">
               <Building2 className="h-7 w-7 text-white" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">
-              VERTIV<span className="opacity-70">.global</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">
+              VERTIV<span className="text-secondary opacity-80">.global</span>
             </span>
           </div>
 
           {/* Main content */}
           <div className="space-y-6">
-            <h1 className="text-4xl xl:text-5xl font-bold leading-tight text-balance">
-              Análise de Investimentos Imobiliários
+            <h1 className="text-5xl xl:text-6xl font-black leading-none monolithic-headline text-white">
+              TITANIUM<br/>FEASIBILITY
             </h1>
             <p className="text-lg text-white/80 max-w-md">
               Plataforma completa para análise, simulação e tomada de decisão em investimentos imobiliários comerciais.
@@ -112,7 +112,7 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
+              <div className="h-10 w-10 bg-primary rounded-sm flex items-center justify-center">
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold tracking-tight">
@@ -122,17 +122,17 @@ export default function LoginPage() {
           </div>
 
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Bem-vindo de volta
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-black tracking-tighter uppercase text-primary">
+              Access Core
             </h2>
-            <p className="text-muted-foreground mt-2">
-              Entre com suas credenciais para acessar
-            </p>
+            <div className="h-1 w-12 bg-secondary mx-auto mt-4" />
           </div>
 
           {/* Login Card */}
-          <div className="glass rounded-2xl p-8 shadow-lg">
+          <div className="bg-card border border-primary/10 rounded-sm p-10 shadow-elevated relative overflow-hidden">
+            {/* Seamless side-bar equivalent inside card */}
+            <div className="absolute top-0 left-0 w-1 h-full bg-secondary" />
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm flex items-center gap-2 animate-scale-in">

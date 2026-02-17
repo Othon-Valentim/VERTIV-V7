@@ -22,7 +22,29 @@
       "Bash(git remote add:*)",
       "Bash(git add:*)",
       "Bash(git reset:*)",
-      "Bash(del \"C:\\\\Users\\\\Jussara Thomaz\\\\Documents\\\\VERTIV_V6_GLOBAL\\\\apps\\\\frontend\\\\nul\")"
+      "Bash(del \"C:\\\\Users\\\\Jussara Thomaz\\\\Documents\\\\VERTIV_V6_GLOBAL\\\\apps\\\\frontend\\\\nul\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: commit inicial VERTIV v6.0\n\nEstrutura completa da plataforma de viabilidade imobiliária:\n- Backend FastAPI com engine de cálculo TIV 4.0\n- Frontend Next.js com wizard de análise\n- Configuração Docker para deploy\n- Testes E2E com Playwright\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(.venvScriptspython -m pytest teststest_financial_engine.py -v)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_financial_engine.py -v)",
+      "Bash(.venv/Scripts/python:*)",
+      "Bash(npm run dev:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(gcloud --version:*)",
+      "Bash(gcloud config get-value:*)",
+      "Bash(gcloud run services list:*)",
+      "Bash(gcloud run services describe:*)",
+      "Bash(gcloud run domain-mappings list:*)",
+      "Bash(gcloud run services logs read:*)",
+      "Bash(gcloud logging read:*)",
+      "Bash(set:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(.venvScriptspython -c \"from src.services.search_engine import SearchEngine; se = SearchEngine\\(\\); r = se.search\\(''terreno para incorporação Leopoldina MG''\\); print\\(f''Resultados: {len\\(r[\"\"organic\"\"]\\)} items''\\); print\\(f''Primeiro: {r[\"\"organic\"\"][0][\"\"title\"\"][:50]}...''\\)\")",
+      "Bash(tasklist:*)",
+      "Bash(BASE_URL=http://localhost:3000 API_URL=http://localhost:8000 npx playwright test:*)"
     ]
   }
 }

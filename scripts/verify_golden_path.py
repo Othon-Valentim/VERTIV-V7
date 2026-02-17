@@ -4,11 +4,18 @@ import json
 import traceback
 
 # Configuration
-BACKEND_URL = "https://api.vertiv.tech"
+BACKEND_URL = "http://localhost:8000"
+AUTH_TOKEN = "" # Set this via environment or paste here for testing
 
 
 def verify_golden_path():
     print("--- GOLDEN PATH VALIDATION ---")
+    
+    headers = {}
+    if AUTH_TOKEN:
+        headers["Authorization"] = f"Bearer {AUTH_TOKEN}"
+    else:
+        print("WARNING: No AUTH_TOKEN provided. Tests may fail on secured routes.")
 
     # 1. Health
     print("1. Checking Health...")
@@ -51,7 +58,7 @@ def verify_golden_path():
     try:
         start_t = time.time()
         # Backend /calculate/quick takes ProjectTIV
-        resp = requests.post(f"{BACKEND_URL}/calculate/quick", json=payload, timeout=30)
+        resp = requests.post(f"{BACKEND_URL}/calculate/quick", json=payload, headers=headers, timeout=30)
         dur = time.time() - start_t
 
         if resp.status_code == 200:

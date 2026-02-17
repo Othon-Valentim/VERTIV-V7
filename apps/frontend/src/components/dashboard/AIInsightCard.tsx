@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -21,13 +22,10 @@ export function AIInsightCard({ data }: AIInsightCardProps) {
         const fetchThesis = async () => {
             setLoading(true);
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-                const res = await fetch(`${apiUrl}/analyze/thesis`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ financial_data: data.result })
+                const res = await api.post("/analyze/thesis", { 
+                    financial_data: data.result 
                 });
-
+                
                 if (res.ok) {
                     const json = await res.json();
                     setThesis(json.thesis);

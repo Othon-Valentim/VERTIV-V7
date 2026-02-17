@@ -1,0 +1,68 @@
+ID           Projeto                                                     VPL (R$)   TIR %aa      ROI%  Viavel        P9        RealOpt
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+GD-PUB-001   Benchmark Cury SP — Vertical MCMV Faixa 3              19,016,027.42     79.1%    103.4%    True        GO           0.00
+GD-PUB-002   Benchmark Direcional MG — Loteamento MCMV Faixa        -4,404,735.44     -0.8%     -0.8%   False     NO_GO           0.01
+GD-PUB-003   Benchmark Cyrela SP — Vertical Alto Padrão             -9,071,363.92      2.9%      5.2%   False      HOLD       1,253.90
+GD-PUB-004   Benchmark MRV Interior — MCMV Faixa 1 Goiás            11,234,414.37    102.4%     98.7%    True        GO           0.00
+GD-PUB-005   Benchmark Lavvi SP — Alto Padrão Pinheiros            -44,699,540.83    -27.8%    -49.5%   False      HOLD     734,357.41
+GD-PUB-006   Benchmark Tenda RJ — MCMV Faixa 1 Rio de Janeir        16,007,168.06    104.0%    129.3%    True        GO           0.00
+GD-PUB-007   Benchmark Helbor Campinas — Médio Padrão Interi         1,268,009.34     18.8%     26.9%    True        GO         121.62
+GD-PUB-008   Benchmark EZTec SP — Compactos Barra Funda             24,423,786.44     74.1%    100.1%    True        GO           0.00
+GD-PUB-009   Benchmark Moura Dubeux — Alto Padrão Recife             9,625,062.55     43.1%     69.6%    True        GO           0.02
+GD-PUB-010   Benchmark Cury RJ — MCMV Faixa 2 Rio de Janeiro        11,893,474.78     74.5%     92.5%    True        GO           0.00
+GD-PUB-011   Benchmark Plaenge Curitiba — Médio Padrão Ecovi         9,435,670.41     41.5%     64.2%    True        GO           0.52
+GD-PUB-012   Benchmark JBR Brasília — MCMV Faixa 3 Águas Cla        17,103,820.83     73.6%     99.9%    True        GO           0.00
+GD-PUB-013   ⚠️ Terreno Litigioso Salvador — Risco Jurídico          2,890,251.97     22.9%     35.3%    True        GO     833,112.28
+GD-PUB-014   ⚠️ Interior Profundo MT — Cidade Pequena Sinop          8,735,410.82    124.3%     84.6%    True     NO_GO           0.00
+GD-PUB-015   ⚠️ Retrofit Brownfield Mooca SP — Custo Proibit       -58,195,606.23      0.0%   -100.0%   False        GO     320,820.55
+
+P2 Economic Scores:
+  GD-PUB-001: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-002: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-003: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-004: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-005: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-006: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-007: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-008: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-009: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-010: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-011: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-012: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-013: Score=33.0/50 Decision=GO Selic=13.25%
+  GD-PUB-014: Score=31.0/50 Decision=GO Selic=13.25%
+  GD-PUB-015: Score=33.0/50 Decision=GO Selic=13.25%
+
+P6 Demand (Qualified Units):
+  GD-PUB-001: Demand=2,682 units | Funnel Eff=2.6%
+  GD-PUB-002: Demand=1,645 units | Funnel Eff=2.83%
+  GD-PUB-003: Demand=1,333 units | Funnel Eff=1.65%
+  GD-PUB-004: Demand=1,485 units | Funnel Eff=3.07%
+  GD-PUB-005: Demand=1,066 units | Funnel Eff=1.65%
+  GD-PUB-006: Demand=1,941 units | Funnel Eff=2.15%
+  GD-PUB-007: Demand=1,508 units | Funnel Eff=2.12%
+  GD-PUB-008: Demand=2,400 units | Funnel Eff=2.13%
+  GD-PUB-009: Demand=800 units | Funnel Eff=0.83%
+  GD-PUB-010: Demand=2,240 units | Funnel Eff=1.98%
+  GD-PUB-011: Demand=1,645 units | Funnel Eff=2.12%
+  GD-PUB-012: Demand=1,055 units | Funnel Eff=1.82%
+  GD-PUB-013: Demand=1,920 units | Funnel Eff=2.13%
+  GD-PUB-014: Demand=228 units | Funnel Eff=2.83%
+  GD-PUB-015: Demand=2,057 units | Funnel Eff=2.13%
+
+P9 Gate 4:1 Details:
+  GD-PUB-001: Ratio=5.16 (Demand=2,682/Supply=520) → GO
+  GD-PUB-002: Ratio=2.35 (Demand=1,645/Supply=700) → NO_GO
+  GD-PUB-003: Ratio=7.49 (Demand=1,333/Supply=178) → HOLD
+  GD-PUB-004: Ratio=2.75 (Demand=1,485/Supply=540) → GO
+  GD-PUB-005: Ratio=13.32 (Demand=1,066/Supply=80) → HOLD
+  GD-PUB-006: Ratio=3.73 (Demand=1,941/Supply=520) → GO
+  GD-PUB-007: Ratio=6.56 (Demand=1,508/Supply=230) → GO
+  GD-PUB-008: Ratio=4.49 (Demand=2,400/Supply=535) → GO
+  GD-PUB-009: Ratio=4.4 (Demand=800/Supply=182) → GO
+  GD-PUB-010: Ratio=5.09 (Demand=2,240/Supply=440) → GO
+  GD-PUB-011: Ratio=6.45 (Demand=1,645/Supply=255) → GO
+  GD-PUB-012: Ratio=3.4 (Demand=1,055/Supply=310) → GO
+  GD-PUB-013: Ratio=9.14 (Demand=1,920/Supply=210) → GO
+  GD-PUB-014: Ratio=0.33 (Demand=228/Supply=700) → NO_GO
+  GD-PUB-015: Ratio=6.23 (Demand=2,057/Supply=330) → GO

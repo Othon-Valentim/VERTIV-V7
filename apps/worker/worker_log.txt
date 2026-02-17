@@ -1,0 +1,7 @@
+INFO:     Started server process [16720]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8001): normalmente Ú permitida apenas uma utilizaþÒo de cada endereþo de soquete (protocolo/endereþo de rede/porta)
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+CRITICAL ERROR: Could not import backend modules: No module named 'src'

@@ -63,8 +63,8 @@ export default defineConfig({
     // Capture screenshot on failure
     screenshot: 'only-on-failure',
 
-    // Capture video on failure
-    video: 'on-first-retry',
+    // Capture video
+    video: 'on',
 
     // Viewport size
     viewport: { width: 1920, height: 1080 },

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api-client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,8 +46,7 @@ export default function PortfolioPage() {
     useEffect(() => {
         const fetchSims = async () => {
              try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-                const res = await fetch(`${apiUrl}/simulations?limit=20`);
+                const res = await api.get("/simulations?limit=20");
                 if (res.ok) {
                     const data = await res.json();
                     setSimulations(data);
@@ -68,16 +69,16 @@ export default function PortfolioPage() {
     const investDecisions = simulations.filter(s => s.result?.real_options?.kpi?.decision === 'INVEST').length;
 
     return (
-        <div className="flex flex-col gap-8 p-6 lg:p-8 min-h-screen bg-background text-foreground">
+        <div className="flex flex-col gap-8 p-6 lg:p-8 min-h-screen seamless-bg text-foreground">
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-fade-in">
                 <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-primary" />
+                        <div className="h-10 w-10 rounded-sm bg-primary flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-white" />
                         </div>
-                        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
-                            Global Portfolio Command
+                        <h1 className="text-3xl font-black tracking-tighter uppercase text-primary">
+                            Portfolio Command
                         </h1>
                     </div>
                     <p className="text-muted-foreground ml-13">
@@ -128,13 +129,13 @@ export default function PortfolioPage() {
 
                 <Card className="card-elevated border-none">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">
+                        <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
                             Total ENPV
                         </CardTitle>
                         <TrendingUp className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-primary tabular-nums">
+                        <div className="text-3xl font-black text-primary tabular-nums tracking-tighter">
                             {formatCurrency(totalENPV)}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -170,10 +171,10 @@ export default function PortfolioPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="rounded-lg border border-border overflow-hidden">
+                    <div className="rounded-sm border-none overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                <TableRow className="bg-secondary/20 hover:bg-secondary/20 border-b-primary/10">
                                     <TableHead className="w-[100px] font-semibold">ID</TableHead>
                                     <TableHead className="font-semibold">Date</TableHead>
                                     <TableHead className="font-semibold">Status</TableHead>
@@ -237,9 +238,10 @@ export default function PortfolioPage() {
                                                     <Badge
                                                         variant={sim.status === 'COMPLETED' ? 'default' : 'secondary'}
                                                         className={`
+                                                            rounded-sm font-bold uppercase tracking-tight text-[10px]
                                                             ${sim.status === 'COMPLETED'
-                                                                ? 'bg-success/10 text-success border-success/20 hover:bg-success/20'
-                                                                : 'bg-warning/10 text-warning border-warning/20'
+                                                                ? 'bg-success/10 text-success border-none'
+                                                                : 'bg-secondary text-primary border-none'
                                                             }
                                                         `}
                                                     >

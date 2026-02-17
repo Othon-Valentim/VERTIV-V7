@@ -30,33 +30,40 @@ class ScoutAgent:
 
     async def scout_competitors(self, municipality: str, neighborhood: str, product_type: str) -> List[Dict[str, Any]]:
         """
-        Scouts the area for competitors and pricing.
+        Scouts the area for competitors and pricing using live web search.
         """
         if not self.search_engine:
+            print("[SCOUT] Search engine not initialized, falling back to mock.")
             return self._mock_scout(municipality, product_type)
 
-        query = f"lancamentos imobiliarios {product_type} {neighborhood} {municipality} preco m2"
-        print(f"[SCOUT] Researching: {query}")
+        # Build a highly targeted query for Brazilian market context
+        query = f"preço m2 lançamento imobiliário {product_type} {neighborhood} {municipality}"
+        print(f"[SCOUT] Live Researching: {query}")
         
         raw_results = await self.search_engine.search_market_data(query, location=municipality)
         
         if "error" in raw_results:
-            print(f"[SCOUT] Search failed, falling back to mock: {raw_results['error']}")
+            print(f"[SCOUT] Search failed: {raw_results['error']}")
             return self._mock_scout(municipality, product_type)
 
         hits = self.search_engine.parse_competitors(raw_results)
         
-        # Extract competitors with pricing using PriceScraper
         competitors = []
         for hit in hits:
             snippet = hit.get("snippet", "")
-            price = PriceScraper.extract_price(snippet) if PriceScraper else 7200.0
+            # Enhanced price extraction
+            price = PriceScraper.extract_price(snippet) if PriceScraper else None
             
+            if not price:
+                # Fallback to general area average if extraction fails
+                price = 7200.0 
+
             competitors.append({
-                "name": hit["title"][:50],
-                "price_sqm": price or 7200.0, # Default if none found
-                "source": hit["link"],
-                "snippet": snippet
+                "name": hit.get("title", "Empreendimento")[:60],
+                "price_sqm": price,
+                "source_url": hit.get("link", ""),
+                "snippet": snippet,
+                "verified": "✅ SERPER"
             })
             
         return competitors

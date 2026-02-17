@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e6]:
+        - img [ref=e8]
+        - generic [ref=e12]:
+          - heading "VERTIV.global" [level=1] [ref=e13]
+          - paragraph [ref=e14]: TIV Wizard - 10 Passos
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - button "Salvar" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+            - text: Salvar
+          - button "Abrir" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+            - text: Abrir
+        - button "Nova Análise" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - text: Nova Análise
+      - navigation [ref=e27]:
+        - list [ref=e28]:
+          - listitem [ref=e29]:
+            - 'button "1 P1: Garimpo & Ciclo Screening & Market Cycle Analysis" [ref=e30] [cursor=pointer]':
+              - generic [ref=e31]:
+                - generic [ref=e33]: "1"
+                - generic [ref=e34]:
+                  - generic [ref=e35]: "P1: Garimpo & Ciclo"
+                  - generic [ref=e36]: Screening & Market Cycle Analysis
+          - listitem [ref=e37]:
+            - 'button "2 P2: Dinâmica Econômica BCB Live Indicators & P2i-Lead" [ref=e38] [cursor=pointer]':
+              - generic [ref=e39]:
+                - generic [ref=e41]: "2"
+                - generic [ref=e42]:
+                  - generic [ref=e43]: "P2: Dinâmica Econômica"
+                  - generic [ref=e44]: BCB Live Indicators & P2i-Lead
+          - listitem [ref=e45]:
+            - 'button "3 P3: Área de Influência Isochrones & Demographics" [ref=e46] [cursor=pointer]':
+              - generic [ref=e47]:
+                - generic [ref=e49]: "3"
+                - generic [ref=e50]:
+                  - generic [ref=e51]: "P3: Área de Influência"
+                  - generic [ref=e52]: Isochrones & Demographics
+          - listitem [ref=e53]:
+            - 'button "4 P4: Vocação & Produto 3-Pillar Matrix & Best Use" [ref=e54] [cursor=pointer]':
+              - generic [ref=e55]:
+                - generic [ref=e57]: "4"
+                - generic [ref=e58]:
+                  - generic [ref=e59]: "P4: Vocação & Produto"
+                  - generic [ref=e60]: 3-Pillar Matrix & Best Use
+          - listitem [ref=e61]:
+            - 'button "5 P5: Legal & Restrições Due Diligence Gate (Binary)" [ref=e62] [cursor=pointer]':
+              - generic [ref=e63]:
+                - generic [ref=e65]: "5"
+                - generic [ref=e66]:
+                  - generic [ref=e67]: "P5: Legal & Restrições"
+                  - generic [ref=e68]: Due Diligence Gate (Binary)
+          - listitem [ref=e69]:
+            - 'button "6 P6: Demanda Qualificada 5-Stage Demand Funnel" [ref=e70] [cursor=pointer]':
+              - generic [ref=e71]:
+                - generic [ref=e73]: "6"
+                - generic [ref=e74]:
+                  - generic [ref=e75]: "P6: Demanda Qualificada"
+                  - generic [ref=e76]: 5-Stage Demand Funnel
+          - listitem [ref=e77]:
+            - 'button "7 P7: Oferta & Mercado Competitor Benchmark" [ref=e78] [cursor=pointer]':
+              - generic [ref=e79]:
+                - generic [ref=e81]: "7"
+                - generic [ref=e82]:
+                  - generic [ref=e83]: "P7: Oferta & Mercado"
+                  - generic [ref=e84]: Competitor Benchmark
+          - listitem [ref=e85]:
+            - 'button "8 P8: Absorção (VSO) Sales Velocity Projection" [ref=e86] [cursor=pointer]':
+              - generic [ref=e87]:
+                - generic [ref=e89]: "8"
+                - generic [ref=e90]:
+                  - generic [ref=e91]: "P8: Absorção (VSO)"
+                  - generic [ref=e92]: Sales Velocity Projection
+          - listitem [ref=e93]:
+            - 'button "9 P9: Convalidação 4:1 Strategic Validation Gate" [ref=e94] [cursor=pointer]':
+              - generic [ref=e95]:
+                - generic [ref=e97]: "9"
+                - generic [ref=e98]:
+                  - generic [ref=e99]: "P9: Convalidação 4:1"
+                  - generic [ref=e100]: Strategic Validation Gate
+          - listitem [ref=e101]:
+            - 'button "10 P10: Modelagem Financeira DCF + Real Options (Diamond Core)" [ref=e102] [cursor=pointer]':
+              - generic [ref=e103]:
+                - generic [ref=e105]: "10"
+                - generic [ref=e106]:
+                  - generic [ref=e107]: "P10: Modelagem Financeira"
+                  - generic [ref=e108]: DCF + Real Options (Diamond Core)
+      - generic [ref=e109]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: Progresso
+          - generic [ref=e113]: 0/10
+        - generic [ref=e115]:
+          - generic [ref=e116]: Session ID
+          - generic [ref=e117]: 0F002G3L
+    - main [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - generic [ref=e122]: 🔍
+          - generic [ref=e123]:
+            - 'heading "P1: Garimpo & Ciclo" [level=2] [ref=e124]'
+            - paragraph [ref=e125]: Screening & Market Cycle Analysis
+        - generic [ref=e126]:
+          - img [ref=e127]
+          - text: IN PROGRESS
+      - generic [ref=e130]:
+        - generic [ref=e132]:
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - heading "Input Parameters" [level=3] [ref=e135]
+              - paragraph [ref=e136]: Define the basic land characteristics.
+            - button "Load Example Deal" [ref=e137] [cursor=pointer]
+          - generic [ref=e138]:
+            - generic [ref=e139]:
+              - text: Municipality
+              - textbox "e.g. Leopoldina-MG" [ref=e140]
+            - generic [ref=e141]:
+              - text: Neighborhood
+              - textbox "e.g. Centro" [ref=e142]
+            - generic [ref=e143]:
+              - text: Total Area (m²)
+              - spinbutton [ref=e144]
+            - generic [ref=e145]:
+              - text: Asking Price (BRL)
+              - spinbutton [ref=e146]
+          - button "Run Analysis" [ref=e148] [cursor=pointer]
+        - generic [ref=e149]:
+          - button "Voltar" [disabled]:
+            - img
+            - text: Voltar
+          - generic [ref=e150]:
+            - button [ref=e151] [cursor=pointer]
+            - button [ref=e152] [cursor=pointer]
+            - button [ref=e153] [cursor=pointer]
+            - button [ref=e154] [cursor=pointer]
+            - button [ref=e155] [cursor=pointer]
+            - button [ref=e156] [cursor=pointer]
+            - button [ref=e157] [cursor=pointer]
+            - button [ref=e158] [cursor=pointer]
+            - button [ref=e159] [cursor=pointer]
+            - button [ref=e160] [cursor=pointer]
+          - button "Próximo" [ref=e161] [cursor=pointer]:
+            - text: Próximo
+            - img [ref=e162]
+```

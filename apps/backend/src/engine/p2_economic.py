@@ -13,11 +13,13 @@ from typing import Optional
 from decimal import Decimal
 import httpx
 from datetime import datetime, timedelta
+from src.vertiv.biz import tropicalize
 
 
 @dataclass
 class EconomicIndicators:
     """Live economic indicators from BCB and other sources."""
+
     selic_rate: float  # Taxa SELIC anual
     ipca_12m: float  # IPCA acumulado 12 meses
     pib_growth: float  # Crescimento PIB
@@ -41,14 +43,16 @@ class P2EconomicEngine:
 
     # BCB SGS Series Codes
     BCB_SELIC = 432  # Taxa SELIC
-    BCB_IPCA = 433   # IPCA mensal
+    BCB_IPCA = 433  # IPCA mensal
     BCB_DESEMPREGO = 24369  # Taxa de desocupação
 
     def __init__(self):
         self._cache = {}
         self._cache_expiry = datetime.now()
 
-    async def fetch_bcb_indicator(self, series_code: int, periods: int = 12) -> Optional[float]:
+    async def fetch_bcb_indicator(
+        self, series_code: int, periods: int = 12
+    ) -> Optional[float]:
         """Fetch indicator from BCB SGS API with caching."""
         cache_key = f"bcb_{series_code}"
 
@@ -75,9 +79,16 @@ class P2EconomicEngine:
     async def get_live_indicators(self) -> EconomicIndicators:
         """Fetch all live economic indicators."""
         # Fetch from BCB (with fallbacks)
-        selic = await self.fetch_bcb_indicator(self.BCB_SELIC) or 11.25
-        ipca = await self.fetch_bcb_indicator(self.BCB_IPCA) or 4.5
-        unemployment = await self.fetch_bcb_indicator(self.BCB_DESEMPREGO) or 7.5
+        selic = await self.fetch_bcb_indicator(self.BCB_SELIC) or tropicalize(
+            "SELIC_RATE", 11.25
+        )
+        # IPCA in p2 is percent (e.g. 4.5), but biz module stores decimal (0.045). Converting:
+        ipca = await self.fetch_bcb_indicator(self.BCB_IPCA) or (
+            tropicalize("IPCA_ANNUAL", 0.045) * 100
+        )
+        unemployment = await self.fetch_bcb_indicator(
+            self.BCB_DESEMPREGO
+        ) or tropicalize("UNEMPLOYMENT_RATE", 7.5)
 
         # Simulated indicators (would come from other APIs in production)
         # These should integrate with IBGE, CAGED, FGV in production
@@ -88,7 +99,29 @@ class P2EconomicEngine:
             unemployment_rate=unemployment,
             consumer_confidence=98.5,  # Would fetch from FGV ICC
             credit_expansion=12.0,  # Would fetch from BCB
-            formal_employment_growth=1.8  # Would fetch from CAGED
+            formal_employment_growth=1.8,  # Would fetch from CAGED
+        )
+
+    def get_offline_indicators(self) -> EconomicIndicators:
+        """Return hardcoded fallback indicators for offline/sync execution.
+
+        Values calibrated to Brazil Q4 2024 / Q1 2025:
+        - Selic: 13.25% (BCB Jan/2025)
+        - IPCA 12m: 4.77% (IBGE Jan/2025)
+        - PIB: 3.1% (IBGE 2024)
+        - Desemprego: 6.6% (PNAD Q4/2024)
+        - ICC: 91.2 (FGV Jan/2025)
+        - Crédito Imob: 14.5% YoY (BCB)
+        - CAGED: 1.7% (MTE)
+        """
+        return EconomicIndicators(
+            selic_rate=13.25,
+            ipca_12m=4.77,
+            pib_growth=3.1,
+            unemployment_rate=6.6,
+            consumer_confidence=91.2,
+            credit_expansion=14.5,
+            formal_employment_growth=1.7,
         )
 
     def calculate_leading_score(self, indicators: EconomicIndicators) -> float:
@@ -182,7 +215,7 @@ class P2EconomicEngine:
         self,
         indicators: EconomicIndicators,
         municipality_population: int = 50000,
-        is_metropolitan: bool = False
+        is_metropolitan: bool = False,
     ) -> float:
         """
         Calculate Contextual Adjustment Score (0-10 pts).
@@ -215,7 +248,7 @@ class P2EconomicEngine:
         self,
         municipality: str,
         municipality_population: int = 50000,
-        is_metropolitan: bool = False
+        is_metropolitan: bool = False,
     ) -> dict:
         """
         Execute full P2 Economic Dynamics analysis.
@@ -230,9 +263,7 @@ class P2EconomicEngine:
         leading_score = self.calculate_leading_score(indicators)
         lagging_score = self.calculate_lagging_score(indicators)
         contextual_score = self.calculate_contextual_score(
-            indicators,
-            municipality_population,
-            is_metropolitan
+            indicators, municipality_population, is_metropolitan
         )
 
         # Total P2i-Lead Score (0-50)
@@ -244,10 +275,14 @@ class P2EconomicEngine:
             recommendation = "Ambiente macroeconômico altamente favorável para desenvolvimento imobiliário."
         elif p2i_lead_score >= 28:
             decision = "GO"
-            recommendation = "Ambiente macroeconômico favorável. Prosseguir com análise detalhada."
+            recommendation = (
+                "Ambiente macroeconômico favorável. Prosseguir com análise detalhada."
+            )
         elif p2i_lead_score >= 22:
             decision = "CAUTION"
-            recommendation = "Ambiente macroeconômico neutro. Avaliar timing e mitigações."
+            recommendation = (
+                "Ambiente macroeconômico neutro. Avaliar timing e mitigações."
+            )
         else:
             decision = "HOLD"
             recommendation = "Ambiente macroeconômico desfavorável. Aguardar melhora dos indicadores."
@@ -266,8 +301,8 @@ class P2EconomicEngine:
                     "components": {
                         "employment_growth": indicators.formal_employment_growth,
                         "credit_expansion": indicators.credit_expansion,
-                        "consumer_confidence": indicators.consumer_confidence
-                    }
+                        "consumer_confidence": indicators.consumer_confidence,
+                    },
                 },
                 "lagging_indicators": {
                     "score": lagging_score,
@@ -275,8 +310,8 @@ class P2EconomicEngine:
                     "components": {
                         "ipca_12m": indicators.ipca_12m,
                         "pib_growth": indicators.pib_growth,
-                        "selic_rate": indicators.selic_rate
-                    }
+                        "selic_rate": indicators.selic_rate,
+                    },
                 },
                 "contextual_factors": {
                     "score": contextual_score,
@@ -284,9 +319,9 @@ class P2EconomicEngine:
                     "components": {
                         "municipality_population": municipality_population,
                         "is_metropolitan": is_metropolitan,
-                        "unemployment_rate": indicators.unemployment_rate
-                    }
-                }
+                        "unemployment_rate": indicators.unemployment_rate,
+                    },
+                },
             },
             "live_indicators": {
                 "selic_rate": indicators.selic_rate,
@@ -295,7 +330,66 @@ class P2EconomicEngine:
                 "unemployment_rate": indicators.unemployment_rate,
                 "consumer_confidence": indicators.consumer_confidence,
                 "credit_expansion": indicators.credit_expansion,
-                "formal_employment_growth": indicators.formal_employment_growth
+                "formal_employment_growth": indicators.formal_employment_growth,
             },
-            "data_timestamp": datetime.now().isoformat()
+            "data_timestamp": datetime.now().isoformat(),
+        }
+
+    def analyze_sync(
+        self,
+        municipality: str,
+        municipality_population: int = 50000,
+        is_metropolitan: bool = False,
+    ) -> dict:
+        """Synchronous analysis using offline fallback indicators.
+
+        Use this for Golden Dataset calibration and offline testing.
+        For production with live BCB data, use the async `analyze()` method.
+        """
+        indicators = self.get_offline_indicators()
+
+        leading_score = self.calculate_leading_score(indicators)
+        lagging_score = self.calculate_lagging_score(indicators)
+        contextual_score = self.calculate_contextual_score(
+            indicators, municipality_population, is_metropolitan
+        )
+
+        p2i_lead_score = leading_score + lagging_score + contextual_score
+
+        if p2i_lead_score >= 35:
+            decision = "GO"
+            recommendation = "Ambiente macroeconômico altamente favorável."
+        elif p2i_lead_score >= 28:
+            decision = "GO"
+            recommendation = "Ambiente macroeconômico favorável. Prosseguir."
+        elif p2i_lead_score >= 22:
+            decision = "CAUTION"
+            recommendation = "Ambiente neutro. Avaliar timing."
+        else:
+            decision = "HOLD"
+            recommendation = "Ambiente desfavorável. Aguardar."
+
+        return {
+            "municipality": municipality,
+            "p2i_lead_score": round(p2i_lead_score, 2),
+            "max_score": 50,
+            "decision": decision,
+            "recommendation": recommendation,
+            "is_favorable": p2i_lead_score >= 28,
+            "breakdown": {
+                "leading_indicators": {"score": leading_score, "max": 25},
+                "lagging_indicators": {"score": lagging_score, "max": 15},
+                "contextual_factors": {"score": contextual_score, "max": 10},
+            },
+            "live_indicators": {
+                "selic_rate": indicators.selic_rate,
+                "ipca_12m": indicators.ipca_12m,
+                "pib_growth": indicators.pib_growth,
+                "unemployment_rate": indicators.unemployment_rate,
+                "consumer_confidence": indicators.consumer_confidence,
+                "credit_expansion": indicators.credit_expansion,
+                "formal_employment_growth": indicators.formal_employment_growth,
+            },
+            "data_source": "OFFLINE_FALLBACK_Q1_2025",
+            "data_timestamp": datetime.now().isoformat(),
         }

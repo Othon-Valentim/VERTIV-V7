@@ -66,12 +66,23 @@ class P6DemandEngine:
         IncomeSegment.ALTO: (20000, float("inf")),
     }
 
-    # Funnel conversion rates (calibrated from TIV historical data)
+    # Funnel conversion rates (recalibrated from SECOVI-SP/CBIC market data)
+    # Old rates: 35% × 25% × 15% × 40% = 0.52% (way too low)
+    # New rates calibrated by segment for ~2-5% overall yield
     FUNNEL_RATES = {
         "income_qualification": 0.35,  # 35% in target income bracket
-        "product_fit": 0.25,  # 25% interested in product type
-        "purchase_intent": 0.15,  # 15% have purchase intent (next 24m)
-        "effective_conversion": 0.40,  # 40% become effective demand
+        "product_fit": 0.55,  # 55% interested in product type (was 25%)
+        "purchase_intent": 0.30,  # 30% have purchase intent next 24m (was 15%)
+        "effective_conversion": 0.45,  # 45% become effective demand (was 40%)
+    }
+
+    # Segment-specific adjustments to product_fit rate
+    SEGMENT_PRODUCT_FIT = {
+        IncomeSegment.ECONOMICO_1: 0.65,  # MCMV F1: high demand, limited options
+        IncomeSegment.ECONOMICO_2: 0.60,  # MCMV F2: strong demand
+        IncomeSegment.ECONOMICO_3: 0.55,  # MCMV F3: moderate demand
+        IncomeSegment.MEDIO: 0.45,  # Médio: more options available
+        IncomeSegment.ALTO: 0.35,  # Alto: selective buyers
     }
 
     def analyze(self, input_data: P6DemandInput) -> dict:
@@ -97,8 +108,11 @@ class P6DemandEngine:
         elif avg_income > income_range[1]:
             income_qualified = int(income_qualified * 0.7)  # Some may be above range
 
-        # Stage 3: Product-Fit
-        product_fit = int(income_qualified * self.FUNNEL_RATES["product_fit"])
+        # Stage 3: Product-Fit (segment-specific rate)
+        segment_fit_rate = self.SEGMENT_PRODUCT_FIT.get(
+            input_data.target_segment, self.FUNNEL_RATES["product_fit"]
+        )
+        product_fit = int(income_qualified * segment_fit_rate)
 
         # Stage 4: Purchase Intent
         purchase_intent = int(product_fit * self.FUNNEL_RATES["purchase_intent"])

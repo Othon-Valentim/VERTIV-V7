@@ -1,0 +1,26 @@
+{
+    "mcp_servers": {
+        "context_caching": {
+            "enabled": true,
+            "watch_path": ".context/knowledge/cache",
+            "instruction": "Kevin, considere todo arquivo nesta pasta como Memória de Longo Prazo (Cached). Eu vou depositar o 'Dossiê Leopoldina' e o 'Manual HVS Resorts' aqui. Você não deve reprocessá-los, apenas consultá-los instantaneamente."
+        },
+        "grounding": {
+            "enabled": true,
+            "native_tool": "google_search_retrieval",
+            "agents": [
+                "SCOUT",
+                "MARKETER"
+            ],
+            "priority": "official_sources"
+        },
+        "thinking_models": {
+            "enabled": true,
+            "default_model": "gemini-2.0-flash-thinking",
+            "scope": [
+                "Hard Constraints",
+                "Complex Reasoning"
+            ]
+        }
+    }
+}

@@ -1,0 +1,9 @@
+Creating temporary archive of 291 file(s) totalling 17.3 MiB before compression.
+Some files were not included in the source upload.
+
+Check the gcloud log [C:\Users\Jussara Thomaz\AppData\Roaming\gcloud\logs\2026.01.09\00.25.27.029243.log] to see which files and the contents of the
+default gcloudignore file used (see `$ gcloud topic gcloudignore` to learn
+more).
+
+Uploading tarball of [.] to [gs://vertiv-prod-v1_cloudbuild/source/1767929127.574371-869aae18c5a846cfb3b96270e2928a60.tgz]
+ERROR: (gcloud.builds.submit) 403 Could not upload file [C:\Users\JUSSAR~1\AppData\Local\Temp\tmpn2y49wkq\file.tgz] to [vertiv-prod-v1_cloudbuild/source/1767929127.574371-869aae18c5a846cfb3b96270e2928a60.tgz]: The billing account for the owning project is disabled in state delinquent. This command is authenticated as othonpreta2023@gmail.com which is the active account specified by the [core/account] property

@@ -18,12 +18,15 @@ from decimal import Decimal
 
 class ZoningType(str, Enum):
     """Brazilian zoning classifications."""
+
     ZR1 = "ZR1"  # Residencial Unifamiliar
     ZR2 = "ZR2"  # Residencial Multifamiliar Baixa
     ZR3 = "ZR3"  # Residencial Multifamiliar Alta
-    ZM = "ZM"    # Zona Mista
-    ZC = "ZC"    # Zona Comercial
-    ZI = "ZI"    # Zona Industrial
+    ZR4 = "ZR4"  # Residencial Alta Densidade
+    ZM = "ZM"  # Zona Mista
+    ZEM = "ZEM"  # Zona Especial Mista
+    ZC = "ZC"  # Zona Comercial
+    ZI = "ZI"  # Zona Industrial
     ZEIS = "ZEIS"  # Zona Especial Interesse Social
     APA = "APA"  # Área de Proteção Ambiental
     APP = "APP"  # Área de Preservação Permanente
@@ -31,14 +34,16 @@ class ZoningType(str, Enum):
 
 class InfrastructureLevel(str, Enum):
     """Infrastructure availability levels."""
+
     COMPLETE = "COMPLETE"  # All utilities available
-    PARTIAL = "PARTIAL"    # Some utilities missing
-    BASIC = "BASIC"        # Only water/electricity
-    NONE = "NONE"          # Greenfield
+    PARTIAL = "PARTIAL"  # Some utilities missing
+    BASIC = "BASIC"  # Only water/electricity
+    NONE = "NONE"  # Greenfield
 
 
 class ProductType(str, Enum):
     """Recommended product types based on analysis."""
+
     LOTEAMENTO_ABERTO = "LOTEAMENTO_ABERTO"
     CONDOMINIO_FECHADO = "CONDOMINIO_FECHADO"
     VERTICAL_RESIDENCIAL = "VERTICAL_RESIDENCIAL"
@@ -50,6 +55,7 @@ class ProductType(str, Enum):
 
 class P4VocationInput(BaseModel):
     """Input parameters for P4 Vocation Analysis."""
+
     # Location
     municipality: str
     neighborhood: str
@@ -60,7 +66,9 @@ class P4VocationInput(BaseModel):
     zoning_type: ZoningType
     max_height_floors: int = Field(default=4, ge=1, le=100)
     max_coverage_ratio: float = Field(default=0.6, ge=0.1, le=1.0)  # Taxa de ocupação
-    max_floor_area_ratio: float = Field(default=2.0, ge=0.1, le=10.0)  # Coeficiente aproveitamento
+    max_floor_area_ratio: float = Field(
+        default=2.0, ge=0.1, le=10.0
+    )  # Coeficiente aproveitamento
 
     # Centrality
     distance_city_center_km: float = Field(ge=0)
@@ -94,9 +102,25 @@ class P4VocationEngine:
     # Product recommendation rules based on zoning and density
     PRODUCT_MATRIX = {
         ZoningType.ZR1: [ProductType.LOTEAMENTO_ABERTO, ProductType.CONDOMINIO_FECHADO],
-        ZoningType.ZR2: [ProductType.CONDOMINIO_FECHADO, ProductType.VERTICAL_RESIDENCIAL],
+        ZoningType.ZR2: [
+            ProductType.CONDOMINIO_FECHADO,
+            ProductType.VERTICAL_RESIDENCIAL,
+        ],
         ZoningType.ZR3: [ProductType.VERTICAL_RESIDENCIAL, ProductType.MISTO],
-        ZoningType.ZM: [ProductType.MISTO, ProductType.VERTICAL_RESIDENCIAL, ProductType.VERTICAL_COMERCIAL],
+        ZoningType.ZR4: [
+            ProductType.VERTICAL_RESIDENCIAL,
+            ProductType.MISTO,
+        ],  # Alta Densidade
+        ZoningType.ZM: [
+            ProductType.MISTO,
+            ProductType.VERTICAL_RESIDENCIAL,
+            ProductType.VERTICAL_COMERCIAL,
+        ],
+        ZoningType.ZEM: [
+            ProductType.MISTO,
+            ProductType.VERTICAL_RESIDENCIAL,
+            ProductType.VERTICAL_COMERCIAL,
+        ],  # Especial Mista
         ZoningType.ZC: [ProductType.VERTICAL_COMERCIAL, ProductType.MISTO],
         ZoningType.ZI: [],  # Not suitable for residential
         ZoningType.ZEIS: [ProductType.VERTICAL_RESIDENCIAL],  # Social housing only
@@ -155,11 +179,11 @@ class P4VocationEngine:
             "components": {
                 "zoning_compatibility": round(zoning_compat, 2),
                 "building_potential": round(building_potential, 2),
-                "regulatory_flexibility": round(flexibility, 2)
+                "regulatory_flexibility": round(flexibility, 2),
             },
             "zoning_type": input_data.zoning_type.value,
             "max_far": input_data.max_floor_area_ratio,
-            "max_height": input_data.max_height_floors
+            "max_height": input_data.max_height_floors,
         }
 
     def calculate_centrality_score(self, input_data: P4VocationInput) -> dict:
@@ -215,10 +239,10 @@ class P4VocationEngine:
             "components": {
                 "distance_to_center": round(center_score, 2),
                 "main_avenue_proximity": round(avenue_score, 2),
-                "public_transport": round(transport_score, 2)
+                "public_transport": round(transport_score, 2),
             },
             "distance_center_km": input_data.distance_city_center_km,
-            "has_metro": input_data.distance_metro_station_km is not None
+            "has_metro": input_data.distance_metro_station_km is not None,
         }
 
     def calculate_infrastructure_score(self, input_data: P4VocationInput) -> dict:
@@ -270,7 +294,7 @@ class P4VocationEngine:
             "components": {
                 "basic_utilities": round(basic_score, 2),
                 "enhanced_utilities": round(enhanced_score, 2),
-                "access_quality": round(access_score, 2)
+                "access_quality": round(access_score, 2),
             },
             "infrastructure_level": input_data.infrastructure_level.value,
             "utilities_available": {
@@ -278,14 +302,12 @@ class P4VocationEngine:
                 "electricity": input_data.has_electricity,
                 "sewage": input_data.has_sewage_network,
                 "gas": input_data.has_gas_network,
-                "fiber": input_data.has_fiber_optic
-            }
+                "fiber": input_data.has_fiber_optic,
+            },
         }
 
     def recommend_product(
-        self,
-        input_data: P4VocationInput,
-        total_score: float
+        self, input_data: P4VocationInput, total_score: float
     ) -> dict:
         """
         Recommend optimal product type based on analysis.
@@ -300,7 +322,7 @@ class P4VocationEngine:
                 "primary": None,
                 "alternatives": [],
                 "reason": f"Zoneamento {input_data.zoning_type.value} não permite desenvolvimento residencial.",
-                "confidence": 0.0
+                "confidence": 0.0,
             }
 
         # Score adjustments based on context
@@ -330,10 +352,9 @@ class P4VocationEngine:
                 if input_data.zoning_type == ZoningType.ZM:
                     base_score += 1.0
 
-            recommendations.append({
-                "product": product.value,
-                "adjusted_score": round(base_score, 2)
-            })
+            recommendations.append(
+                {"product": product.value, "adjusted_score": round(base_score, 2)}
+            )
 
         # Sort by adjusted score
         recommendations.sort(key=lambda x: x["adjusted_score"], reverse=True)
@@ -352,7 +373,7 @@ class P4VocationEngine:
             "primary_score": primary["adjusted_score"] if primary else 0,
             "alternatives": [alt["product"] for alt in alternatives],
             "confidence": round(confidence, 2),
-            "all_options": recommendations
+            "all_options": recommendations,
         }
 
     def analyze(self, input_data: P4VocationInput) -> dict:
@@ -369,9 +390,9 @@ class P4VocationEngine:
 
         # Weighted total (0-10 scale)
         total_score = (
-            zoning_result["score"] * zoning_result["weight"] +
-            centrality_result["score"] * centrality_result["weight"] +
-            infrastructure_result["score"] * infrastructure_result["weight"]
+            zoning_result["score"] * zoning_result["weight"]
+            + centrality_result["score"] * centrality_result["weight"]
+            + infrastructure_result["score"] * infrastructure_result["weight"]
         )
 
         # Normalize to 0-100 scale for consistency
@@ -386,13 +407,19 @@ class P4VocationEngine:
             recommendation = "Zoneamento incompatível com desenvolvimento imobiliário."
         elif total_score >= 7.5:
             decision = "GO"
-            recommendation = f"Excelente vocação para {product_rec['primary']}. Alta atratividade."
+            recommendation = (
+                f"Excelente vocação para {product_rec['primary']}. Alta atratividade."
+            )
         elif total_score >= 6.0:
             decision = "GO"
-            recommendation = f"Boa vocação para {product_rec['primary']}. Prosseguir com análise."
+            recommendation = (
+                f"Boa vocação para {product_rec['primary']}. Prosseguir com análise."
+            )
         elif total_score >= 4.5:
             decision = "CAUTION"
-            recommendation = f"Vocação moderada para {product_rec['primary']}. Avaliar mitigações."
+            recommendation = (
+                f"Vocação moderada para {product_rec['primary']}. Avaliar mitigações."
+            )
         else:
             decision = "HOLD"
             recommendation = "Baixa atratividade. Considerar outras oportunidades."
@@ -400,7 +427,7 @@ class P4VocationEngine:
         return {
             "location": {
                 "municipality": input_data.municipality,
-                "neighborhood": input_data.neighborhood
+                "neighborhood": input_data.neighborhood,
             },
             "total_score": round(total_score, 2),
             "score_100": round(score_100, 2),
@@ -410,13 +437,13 @@ class P4VocationEngine:
             "pillars": {
                 "pilar_1_zoning": zoning_result,
                 "pilar_2_centrality": centrality_result,
-                "pilar_3_infrastructure": infrastructure_result
+                "pilar_3_infrastructure": infrastructure_result,
             },
             "product_recommendation": product_rec,
             "input_summary": {
                 "land_area_sqm": input_data.land_area_sqm,
                 "land_price_per_sqm": float(input_data.land_price_per_sqm),
                 "zoning": input_data.zoning_type.value,
-                "target_segment": input_data.target_segment
-            }
+                "target_segment": input_data.target_segment,
+            },
         }

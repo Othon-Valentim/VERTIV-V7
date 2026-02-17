@@ -7,38 +7,38 @@
 
 @layer base {
   :root {
-    /* === VERTIV Design System - Light Mode === */
-    /* Inspired by modern corporate design with unique teal/emerald palette */
+    /* === Monolithic Seamless Design System - Light Mode === */
+    /* Inspired by Monofloor aesthetics: Everest, Kalahari, Arabia */
 
     /* Core Colors */
-    --background: 0 0% 100%;
-    --foreground: 200 15% 12%;
+    --background: 0 0% 96%; /* Everest - Primary Surface */
+    --foreground: 25 40% 15%; /* Arabia - Primary Text */
 
     /* Card & Surface */
     --card: 0 0% 100%;
-    --card-foreground: 200 15% 12%;
-    --card-hover: 180 10% 98%;
+    --card-foreground: 25 40% 15%;
+    --card-hover: 35 30% 92%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 200 15% 12%;
+    --popover-foreground: 25 40% 15%;
 
-    /* Primary - Teal/Cyan (unique alternative to Yardi's blue) */
-    --primary: 173 80% 40%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 173 80% 35%;
+    /* Primary - Arabia (Deep Earth) */
+    --primary: 25 40% 15%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 25 40% 10%;
 
-    /* Secondary */
-    --secondary: 200 10% 96%;
-    --secondary-foreground: 200 15% 12%;
+    /* Secondary - Kalahari (Warm Sand) */
+    --secondary: 35 30% 85%;
+    --secondary-foreground: 25 40% 15%;
 
     /* Muted */
-    --muted: 200 10% 96%;
-    --muted-foreground: 200 10% 45%;
+    --muted: 35 15% 90%;
+    --muted-foreground: 25 10% 45%;
 
-    /* Accent - Warm Gold */
-    --accent: 38 92% 50%;
-    --accent-foreground: 200 15% 12%;
+    /* Accent - Dark Kalahari */
+    --accent: 35 30% 70%;
+    --accent-foreground: 25 40% 15%;
 
     /* Success */
     --success: 160 84% 39%;
@@ -46,19 +46,19 @@
 
     /* Warning */
     --warning: 38 92% 50%;
-    --warning-foreground: 200 15% 12%;
+    --warning-foreground: 25 40% 15%;
 
     /* Destructive */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 200 10% 90%;
-    --input: 200 10% 90%;
-    --ring: 173 80% 40%;
+    --border: 35 10% 88%;
+    --input: 35 10% 88%;
+    --ring: 25 40% 15%;
 
-    /* Radius - Modern rounded corners */
-    --radius: 0.5rem;
+    /* Radius - Subtler rounded corners for 'Monolithic' feel */
+    --radius: 0.25rem;
     --radius-pill: 9999px;
 
     /* Shadows */
@@ -85,54 +85,41 @@
   }
 
   .dark {
-    /* === VERTIV Design System - Dark Mode === */
-    /* Deep slate with teal accents */
+    /* === Monolithic Seamless - Dark Mode === */
+    /* Authority: Arabia (Deep), Surface: Everest (Darkened), Accent: Kalahari */
 
-    --background: 200 20% 8%;
-    --foreground: 0 0% 98%;
+    --background: 25 40% 5%; /* Arabia Dark - Core Identity */
+    --foreground: 0 0% 96%; /* Everest - Pure clean text */
 
-    --card: 200 18% 11%;
-    --card-foreground: 0 0% 98%;
-    --card-hover: 200 16% 14%;
+    --card: 25 40% 8%; /* Slightly lighter Arabia */
+    --card-foreground: 0 0% 96%;
+    --card-hover: 25 35% 10%;
 
-    --popover: 200 20% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 25 40% 5%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Primary - Brighter Teal for dark mode */
-    --primary: 173 70% 50%;
-    --primary-foreground: 200 20% 8%;
-    --primary-hover: 173 70% 55%;
+    /* Primary - Kalahari (The Highlight) */
+    --primary: 35 35% 75%; /* Kalahari Sand */
+    --primary-foreground: 25 40% 5%;
+    --primary-hover: 35 35% 80%;
 
-    --secondary: 200 15% 16%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 25 30% 12%; /* Muted Arabia */
+    --secondary-foreground: 35 35% 85%;
 
-    --muted: 200 15% 16%;
-    --muted-foreground: 200 10% 60%;
+    --muted: 25 30% 10%;
+    --muted-foreground: 35 10% 60%;
 
-    /* Accent - Warm Amber for dark mode */
-    --accent: 38 92% 55%;
-    --accent-foreground: 200 20% 8%;
+    /* Accent - Arabia Gold */
+    --accent: 38 70% 60%;
+    --accent-foreground: 25 40% 5%;
 
-    --success: 160 70% 45%;
-    --success-foreground: 0 0% 100%;
+    --border: 25 30% 18%;
+    --input: 25 30% 18%;
+    --ring: 35 35% 75%;
 
-    --warning: 38 92% 55%;
-    --warning-foreground: 200 20% 8%;
-
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 200 15% 18%;
-    --input: 200 15% 18%;
-    --ring: 173 70% 50%;
-
-    /* Dark mode shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
-    --shadow-natural: 6px 6px 15px rgba(0, 0, 0, 0.4);
-    --shadow-elevated: 0 25px 50px -12px rgb(0 0 0 / 0.6);
+    /* Dark mode shadow overrides */
+    --shadow-natural: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-elevated: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   }
 }
 
@@ -183,48 +170,60 @@
 }
 
 @layer components {
-  /* === Button Styles === */
+  /* === Button Styles - Monolithic === */
   .btn-pill {
-    @apply rounded-full px-6 py-3 font-medium transition-all duration-200;
+    @apply rounded-sm px-6 py-3 font-semibold transition-all duration-200 uppercase tracking-wider text-xs;
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:opacity-90;
-    box-shadow: var(--shadow);
+    @apply bg-primary text-primary-foreground hover:bg-primary-hover;
+    box-shadow: 0 4px 15px -3px rgba(0,0,0,0.2);
   }
 
   .btn-primary:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 8px 25px -5px rgba(0,0,0,0.3);
     transform: translateY(-1px);
   }
 
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply bg-secondary text-secondary-foreground hover:bg-accent/20;
   }
 
   .btn-outline {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
   }
-
-  /* === Card Styles === */
+  /* === Card Styles - Monolithic Seamless === */
   .card-elevated {
-    @apply bg-card rounded-lg p-6;
-    box-shadow: var(--shadow);
+    @apply bg-card rounded-sm p-6;
+    box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
     transition: box-shadow var(--transition-base), transform var(--transition-base);
   }
 
   .card-elevated:hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
     transform: translateY(-2px);
   }
 
   .card-subtle {
-    @apply bg-card border border-border rounded-lg p-6;
-    transition: border-color var(--transition-base);
+    @apply bg-background border border-border/30 rounded-sm p-6;
+    transition: background-color var(--transition-base);
   }
 
   .card-subtle:hover {
-    @apply border-primary/30;
+    @apply bg-secondary/10;
+  }
+
+  /* === Monolithic Typography === */
+  .monolithic-headline {
+    @apply font-bold tracking-tighter uppercase text-primary;
+    letter-spacing: -0.05em;
+  }
+
+  .seamless-bg {
+    @apply bg-background;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(35, 30%, 85%, 0.15) 0, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(25, 40%, 15%, 0.05) 0, transparent 50%);
   }
 
   /* === Section Layouts === */
@@ -258,9 +257,9 @@
     @apply transition-all duration-200;
   }
 
-  /* === Gradients === */
+  /* === Gradients - Monolithic Seamless === */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(173 80% 30%) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(25 40% 5%) 100%);
   }
 
   .gradient-hero {

@@ -1,7 +1,9 @@
 from enum import Enum
-from typing import List, Optional
-from pydantic import BaseModel, Field, condecimal, constr
+from typing import Dict, List, Optional, Any
+from pydantic import BaseModel, Field, model_validator
 from decimal import Decimal
+
+from src.domain.agentic_base import VertivAgenticSchema, CONFIDENCE_DEFAULTED
 
 
 # --- RICS ESG Framework ---
@@ -96,6 +98,52 @@ class P4VocationOutput(BaseModel):
 
 
 # P5: Legal
+class P5LegalInput(VertivAgenticSchema):
+    """P5 Legal Due Diligence — Agentic Input with Tolerância Zero."""
+
+    land_registration_number: str = ""
+    municipality: str = ""
+    notary_office: str = "1º Ofício"
+    is_registered: bool = True
+    has_clean_title: bool = True
+    has_liens: bool = False
+    has_usufruct: bool = False
+    is_in_app: bool = False
+    is_in_apa: bool = False
+    has_contamination: bool = False
+    has_zoning_compliance: bool = True
+    has_master_plan_compliance: bool = True
+    has_heritage_protection: bool = False
+    has_iptu_paid: bool = True
+    has_itr_paid: bool = True
+    has_fiscal_liens: bool = False
+    has_pending_lawsuits: bool = False
+    has_adverse_possession: bool = False
+    has_expropriation_risk: bool = False
+    requires_human_audit: bool = False
+
+    @model_validator(mode="after")
+    def tolerancia_zero(self) -> "P5LegalInput":
+        """If any blocking boolean is True or DEFAULTED, force human audit."""
+        blocking_fields = ["is_in_app", "has_contamination", "has_adverse_possession"]
+        for field in blocking_fields:
+            val = getattr(self, field, False)
+            conf = self.extraction_confidence.get(field, "")
+            if val is True or conf == CONFIDENCE_DEFAULTED:
+                self.requires_human_audit = True
+                self.normalization_logs.append(
+                    {
+                        "field": field,
+                        "rule": "TOLERÂNCIA ZERO: blocking field triggered human audit",
+                        "severity": "CRITICAL",
+                        "value": val,
+                        "confidence": conf,
+                    }
+                )
+                break
+        return self
+
+
 class P5LegalOutput(BaseModel):
     impediments: List[str]
     has_environmental_restrictions: bool
@@ -129,8 +177,46 @@ class P9ValidationOutput(BaseModel):
     is_validated: bool
 
 
+# P2: Economic Input (Agentic wrapper)
+class P2EconomicInput(VertivAgenticSchema):
+    """P2 Economic Dynamics — Agentic Input."""
+
+    municipality: str = ""
+    municipality_population: int = Field(default=50000, gt=0)
+    is_metropolitan: bool = False
+
+
+# P3: Projection Input (Agentic wrapper)
+class P3ProjectionInput(VertivAgenticSchema):
+    """P3 Financial Projection — Agentic Input."""
+
+    total_units: int = 100
+    sales_price_avg: float = 300000.0
+    construction_cost_total: float = 30000000.0
+    land_cost: float = 5000000.0
+    development_months: int = 30
+    wacc: float = 0.1325
+
+
+# CashFlow Input (Agentic wrapper)
+class CashFlowInput(VertivAgenticSchema):
+    """CashFlow Engine — Agentic Input."""
+
+    total_units: int = 100
+    sales_price_avg: float = 300000.0
+    construction_cost_total: float = 30000000.0
+    land_cost: float = 5000000.0
+    construction_months: int = 30
+    sales_duration: int = 24
+    use_ret_taxation: bool = True
+    funding_model: str = "SBPE"
+    permuta_physical_pct: float = 0.0
+    incc_annual_rate: float = 0.06
+    ipca_annual_rate: float = 0.045
+
+
 # P10: Financial (The Diamond Core)
-class P10FinancialInput(BaseModel):
+class P10FinancialInput(VertivAgenticSchema):
     total_units: int
     sales_price_avg: Decimal
     construction_cost_total: Decimal
@@ -168,7 +254,7 @@ class P10FinancialOutput(BaseModel):
 
 
 # --- Real Options (Land Banking) ---
-class RealOptionsInput(BaseModel):
+class RealOptionsInput(VertivAgenticSchema):
     land_value_current: float
     development_cost_forcing: float  # Strike Price (K)
     time_to_permit_years: float
@@ -180,7 +266,9 @@ class RealOptionsInput(BaseModel):
 class ProjectTIV(BaseModel):
     id: str
     name: str
-    municipality: str = Field(default="Belo Horizonte", description="City of the project")
+    municipality: str = Field(
+        default="Belo Horizonte", description="City of the project"
+    )
     esg: ESGAttributes = ESGAttributes()
     real_options: Optional[RealOptionsInput] = None
     p1: Optional[P1GarimpoOutput] = None

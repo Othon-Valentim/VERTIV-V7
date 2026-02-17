@@ -1,0 +1,617 @@
+[
+  {
+    "dataset_id": "GD-PUB-001",
+    "project_name": "Benchmark Cury SP — Vertical MCMV Faixa 3",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 19016027.42,
+    "golden_npv": 19016027.42,
+    "v7_irr": 0.791,
+    "golden_irr": 0.791,
+    "v7_roi": 1.0338,
+    "golden_roi": 1.0338,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 19016027.42,
+          "ai_vpl": 19016027.42,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-002",
+    "project_name": "Benchmark Direcional MG — Loteamento MCMV Faixa 2",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": -4404735.44,
+    "golden_npv": -4404735.44,
+    "v7_irr": -0.0079,
+    "golden_irr": -0.0079,
+    "v7_roi": -0.0084,
+    "golden_roi": -0.0084,
+    "v7_viable": false,
+    "golden_viable": false,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": -4404735.44,
+          "ai_vpl": -4404735.44,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-003",
+    "project_name": "Benchmark Cyrela SP — Vertical Alto Padrão",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": -9071363.92,
+    "golden_npv": -9071363.92,
+    "v7_irr": 0.0287,
+    "golden_irr": 0.0287,
+    "v7_roi": 0.0518,
+    "golden_roi": 0.0518,
+    "v7_viable": false,
+    "golden_viable": false,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": -9071363.92,
+          "ai_vpl": -9071363.92,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-004",
+    "project_name": "Benchmark MRV Interior — MCMV Faixa 1 Goiás",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 11234414.37,
+    "golden_npv": 11234414.37,
+    "v7_irr": 1.024,
+    "golden_irr": 1.024,
+    "v7_roi": 0.9873,
+    "golden_roi": 0.9873,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 11234414.37,
+          "ai_vpl": 11234414.37,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-005",
+    "project_name": "Benchmark Lavvi SP — Alto Padrão Pinheiros",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": -44699540.83,
+    "golden_npv": -44699540.83,
+    "v7_irr": -0.278,
+    "golden_irr": -0.278,
+    "v7_roi": -0.4945,
+    "golden_roi": -0.4945,
+    "v7_viable": false,
+    "golden_viable": false,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": -44699540.83,
+          "ai_vpl": -44699540.83,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-006",
+    "project_name": "Benchmark Tenda RJ — MCMV Faixa 1 Rio de Janeiro",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 16007168.06,
+    "golden_npv": 16007168.06,
+    "v7_irr": 1.04,
+    "golden_irr": 1.04,
+    "v7_roi": 1.2928,
+    "golden_roi": 1.2928,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 16007168.06,
+          "ai_vpl": 16007168.06,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-007",
+    "project_name": "Benchmark Helbor Campinas — Médio Padrão Interior SP",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 1268009.34,
+    "golden_npv": 1268009.34,
+    "v7_irr": 0.1875,
+    "golden_irr": 0.1875,
+    "v7_roi": 0.2691,
+    "golden_roi": 0.2691,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 1268009.34,
+          "ai_vpl": 1268009.34,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-008",
+    "project_name": "Benchmark EZTec SP — Compactos Barra Funda",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 24423786.44,
+    "golden_npv": 24423786.44,
+    "v7_irr": 0.7405,
+    "golden_irr": 0.7405,
+    "v7_roi": 1.0011,
+    "golden_roi": 1.0011,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 24423786.44,
+          "ai_vpl": 24423786.44,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-009",
+    "project_name": "Benchmark Moura Dubeux — Alto Padrão Recife",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 9625062.55,
+    "golden_npv": 9625062.55,
+    "v7_irr": 0.4313,
+    "golden_irr": 0.4313,
+    "v7_roi": 0.6961,
+    "golden_roi": 0.6961,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 9625062.55,
+          "ai_vpl": 9625062.55,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-010",
+    "project_name": "Benchmark Cury RJ — MCMV Faixa 2 Rio de Janeiro",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 11893474.78,
+    "golden_npv": 11893474.78,
+    "v7_irr": 0.7451,
+    "golden_irr": 0.7451,
+    "v7_roi": 0.9246,
+    "golden_roi": 0.9246,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 11893474.78,
+          "ai_vpl": 11893474.78,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-011",
+    "project_name": "Benchmark Plaenge Curitiba — Médio Padrão Ecoville",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 9435670.41,
+    "golden_npv": 9435670.41,
+    "v7_irr": 0.415,
+    "golden_irr": 0.415,
+    "v7_roi": 0.6425,
+    "golden_roi": 0.6425,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 9435670.41,
+          "ai_vpl": 9435670.41,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-012",
+    "project_name": "Benchmark JBR Brasília — MCMV Faixa 3 Águas Claras DF",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 17103820.83,
+    "golden_npv": 17103820.83,
+    "v7_irr": 0.7356,
+    "golden_irr": 0.7356,
+    "v7_roi": 0.9986,
+    "golden_roi": 0.9986,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 17103820.83,
+          "ai_vpl": 17103820.83,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-013",
+    "project_name": "⚠️ Terreno Litigioso Salvador — Risco Jurídico",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 2890251.97,
+    "golden_npv": 2890251.97,
+    "v7_irr": 0.2286,
+    "golden_irr": 0.2286,
+    "v7_roi": 0.3528,
+    "golden_roi": 0.3528,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 2890251.97,
+          "ai_vpl": 2890251.97,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-014",
+    "project_name": "⚠️ Interior Profundo MT — Cidade Pequena Sinop",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": 8735410.82,
+    "golden_npv": 8735410.82,
+    "v7_irr": 1.2432,
+    "golden_irr": 1.2432,
+    "v7_roi": 0.8462,
+    "golden_roi": 0.8462,
+    "v7_viable": true,
+    "golden_viable": true,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": 8735410.82,
+          "ai_vpl": 8735410.82,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  },
+  {
+    "dataset_id": "GD-PUB-015",
+    "project_name": "⚠️ Retrofit Brownfield Mooca SP — Custo Proibitivo",
+    "accuracy_score": 100.0,
+    "operation_level": "AUTONOMOUS_SENTENCED",
+    "vpl_mape": 0.0,
+    "v7_npv": -58195606.23,
+    "golden_npv": -58195606.23,
+    "v7_irr": 0.0,
+    "golden_irr": 0.0,
+    "v7_roi": -1.0,
+    "golden_roi": -1.0,
+    "v7_viable": false,
+    "golden_viable": false,
+    "validation_metrics": {
+      "accuracy_score": 100.0,
+      "step_1_inputs": {
+        "score": 100.0,
+        "weight": 0.4,
+        "details": {
+          "total_fields": 17,
+          "passed_fields": 17,
+          "numeric_errors": [],
+          "exact_errors": []
+        }
+      },
+      "step_2_impact": {
+        "score": 100.0,
+        "weight": 0.6,
+        "details": {
+          "status": "PASS",
+          "vpl_mape": 0.0,
+          "golden_vpl": -58195606.23,
+          "ai_vpl": -58195606.23,
+          "threshold": 0.02
+        }
+      }
+    },
+    "kill_reasons": [],
+    "engine_errors": []
+  }
+]

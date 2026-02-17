@@ -22,10 +22,21 @@ if SUPABASE_URL and SUPABASE_KEY:
     except Exception as e:
         print(f"WARNING: Could not init Supabase: {e}")
 
-# Backend Path (Mounted in Docker)
-BACKEND_PATH = "/apps/backend"
-if BACKEND_PATH not in sys.path:
-    sys.path.insert(0, BACKEND_PATH)
+# Backend Path Tropicalization (Support for Docker and Local)
+current_dir = os.path.dirname(os.path.abspath(__file__)) # .../apps/worker/core
+root_dir = os.path.abspath(os.path.join(current_dir, "../../..")) # .../VERTIV_V6_GLOBAL
+backend_path_local = os.path.join(root_dir, "apps", "backend")
+
+BACKEND_PATH_DOCKER = "/apps/backend"
+
+if os.path.exists(BACKEND_PATH_DOCKER):
+    if BACKEND_PATH_DOCKER not in sys.path:
+        sys.path.insert(0, BACKEND_PATH_DOCKER)
+elif os.path.exists(backend_path_local):
+    if backend_path_local not in sys.path:
+        sys.path.insert(0, backend_path_local)
+else:
+    print(f"WARNING: Backend path not found. Local: {backend_path_local}, Docker: {BACKEND_PATH_DOCKER}")
 
 try:
     from src.domain.schemas import (
@@ -37,6 +48,7 @@ try:
     from src.engine.cashflow import CashFlowEngine
     from src.engine.real_options import RealOptionsEngine
     from core.scout_agent import ScoutAgent
+    from src.vertiv.biz import tropicalize
 
     scout_agent = ScoutAgent()
     print("[WORKER] Backend Modules & ScoutAgent Imported Successfully")
@@ -47,6 +59,7 @@ except ImportError as e:
     SimulationStatus = None
     CashFlowEngine = None
     RealOptionsEngine = None
+    tropicalize = lambda k, d: d  # Fallback if import fails
 
 app = FastAPI(title="VERTIV Worker", version="6.1.0-SINGULARITY")
 
@@ -160,29 +173,45 @@ async def process_simulation(payload: SimulationRequest):
                 ).eq("id", payload.simulation_id).execute()
 
             municipality = getattr(project, 'municipality', 'Belo Horizonte')
+            neighborhood = getattr(project, 'neighborhood', 'Centro')
             
             # Since we are in an async endpoint, we await
             competitors = await scout_agent.scout_competitors(
                 municipality=municipality,
-                neighborhood="Prata", # Default fallback
-                product_type="MISTO" if project.is_mixed_use else "VERTICAL_RESIDENCIAL"
+                neighborhood=neighborhood,
+                product_type="MISTO" if project.is_mixed_use else "RESIDENCIAL"
             )
             print(f"[WORKER] ScoutAgent found {len(competitors)} results.")
 
+            # Calculate detected market average if possible
+            if competitors:
+                valid_prices = [c['price_sqm'] for c in competitors if c['price_sqm'] > 0]
+                if valid_prices:
+                    market_avg = sum(valid_prices) / len(valid_prices)
+                    print(f"[WORKER] Market Intelligence: Avg Price detected at R$ {market_avg:,.2f}/m2")
+                    # Optionally adjust project pricing if it was zero
+                    if safe_float(f_input.sales_price_avg) == 0:
+                        f_input.sales_price_avg = market_avg
+
             if supabase_client:
+                msg = f"Inteligência de mercado sincronizada ({len(competitors)} fontes). Preço detectado: R$ {f_input.sales_price_avg:,.2f}/m2"
                 supabase_client.table("simulations").update(
-                    {"narrative_status": f"Inteligencia de mercado sincronizada ({len(competitors)} fontes)."}
+                    {"narrative_status": msg}
                 ).eq("id", payload.simulation_id).execute()
 
         except Exception as scout_e:
             print(f"[WORKER] ScoutAgent failed: {scout_e}")
+            if supabase_client:
+                supabase_client.table("simulations").update(
+                    {"narrative_status": "Busca em tempo real falhou. Usando médias históricas conservadoras."}
+                ).eq("id", payload.simulation_id).execute()
 
     land_cost = safe_float(f_input.land_cost)
     construction_cost = safe_float(f_input.construction_cost_total)
 
     # 1. Cash Flow & ESG (RICS Integration)
     try:
-        base_wacc = 0.145  # Standard 14.5%
+        base_wacc = tropicalize("WACC_ANNUAL", 0.145)  # Standard 14.5%
         greenium = safe_float(project.esg.green_premium)
         brown_discount = safe_float(project.esg.brown_discount)
 

@@ -179,3 +179,35 @@ def require_role(required_role: str):
             )
         return user
     return role_checker
+
+
+async def get_user_from_token_param(token: Optional[str] = None) -> CurrentUser:
+    """
+    Autentica usuário via query parameter.
+
+    Necessário para SSE (Server-Sent Events) que não suporta headers customizados.
+
+    Usage:
+        @app.get("/stream")
+        async def sse_endpoint(user: CurrentUser = Depends(get_user_from_token_param)):
+            ...
+
+    Segurança:
+        - Token é passado via HTTPS (criptografado)
+        - Token tem curta duração (Supabase default: 1 hora)
+        - Não é logado em access logs (query params são omitidos)
+    """
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Please provide token parameter.",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    token_payload = verify_supabase_token(token)
+
+    return CurrentUser(
+        id=token_payload.sub,
+        email=token_payload.email,
+        role=token_payload.role
+    )

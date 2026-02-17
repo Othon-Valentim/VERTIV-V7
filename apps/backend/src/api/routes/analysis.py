@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any
 from src.services.llm_service import LLMService
+from src.infrastructure.auth import get_current_user, CurrentUser
+from fastapi import Depends
 
 router = APIRouter()
 
@@ -15,7 +17,10 @@ class AnalysisResponse(BaseModel):
 
 
 @router.post("/analyze/thesis", response_model=AnalysisResponse)
-async def generate_thesis(request: AnalysisRequest):
+async def generate_thesis(
+    request: AnalysisRequest,
+    user: CurrentUser = Depends(get_current_user)
+):
     """
     Generates an investment thesis based on the provided financial JSON.
     """

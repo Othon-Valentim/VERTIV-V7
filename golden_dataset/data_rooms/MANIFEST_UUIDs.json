@@ -1,0 +1,122 @@
+[
+  {
+    "dataset_id": "GD-PUB-001",
+    "project_name": "Benchmark Cury SP — Vertical MCMV Faixa 3",
+    "legacy_simulation_id": "bf2e52b9-203b-4e04-a22e-9a9f7f49bb1d",
+    "is_viable": true,
+    "vpl": 19016027.42,
+    "tir_annual": 79.1
+  },
+  {
+    "dataset_id": "GD-PUB-002",
+    "project_name": "Benchmark Direcional MG — Loteamento MCMV Faixa 2",
+    "legacy_simulation_id": "85d5eea1-016e-49b7-bdd2-67411249e9dd",
+    "is_viable": false,
+    "vpl": -4404735.44,
+    "tir_annual": -0.79
+  },
+  {
+    "dataset_id": "GD-PUB-003",
+    "project_name": "Benchmark Cyrela SP — Vertical Alto Padrão",
+    "legacy_simulation_id": "8e13f7d4-53be-4ce8-b0e6-abd20183e129",
+    "is_viable": false,
+    "vpl": -9071363.92,
+    "tir_annual": 2.87
+  },
+  {
+    "dataset_id": "GD-PUB-004",
+    "project_name": "Benchmark MRV Interior — MCMV Faixa 1 Goiás",
+    "legacy_simulation_id": "dd2bf30f-2581-46fc-9c1d-d02c87986647",
+    "is_viable": true,
+    "vpl": 11234414.37,
+    "tir_annual": 102.4
+  },
+  {
+    "dataset_id": "GD-PUB-005",
+    "project_name": "Benchmark Lavvi SP — Alto Padrão Pinheiros",
+    "legacy_simulation_id": "27261996-59a5-4b5c-9d73-1100ba1ef223",
+    "is_viable": false,
+    "vpl": -44699540.83,
+    "tir_annual": -27.8
+  },
+  {
+    "dataset_id": "GD-PUB-006",
+    "project_name": "Benchmark Tenda RJ — MCMV Faixa 1 Rio de Janeiro",
+    "legacy_simulation_id": "c5c08a5e-4784-4bab-b16b-49a9f1eb9d16",
+    "is_viable": true,
+    "vpl": 16007168.06,
+    "tir_annual": 104.0
+  },
+  {
+    "dataset_id": "GD-PUB-007",
+    "project_name": "Benchmark Helbor Campinas — Médio Padrão Interior SP",
+    "legacy_simulation_id": "7f3eb765-6ca3-4137-b295-fb16b8dcb7f8",
+    "is_viable": true,
+    "vpl": 1268009.34,
+    "tir_annual": 18.75
+  },
+  {
+    "dataset_id": "GD-PUB-008",
+    "project_name": "Benchmark EZTec SP — Compactos Barra Funda",
+    "legacy_simulation_id": "764a6913-c373-4dbd-8668-45dc58586f98",
+    "is_viable": true,
+    "vpl": 24423786.44,
+    "tir_annual": 74.05
+  },
+  {
+    "dataset_id": "GD-PUB-009",
+    "project_name": "Benchmark Moura Dubeux — Alto Padrão Recife",
+    "legacy_simulation_id": "fb38a041-3765-4f31-a2c3-675378c3539d",
+    "is_viable": true,
+    "vpl": 9625062.55,
+    "tir_annual": 43.13
+  },
+  {
+    "dataset_id": "GD-PUB-010",
+    "project_name": "Benchmark Cury RJ — MCMV Faixa 2 Rio de Janeiro",
+    "legacy_simulation_id": "02095e9c-5c77-4ed5-8d10-7cafd2dc47f1",
+    "is_viable": true,
+    "vpl": 11893474.78,
+    "tir_annual": 74.51
+  },
+  {
+    "dataset_id": "GD-PUB-011",
+    "project_name": "Benchmark Plaenge Curitiba — Médio Padrão Ecoville",
+    "legacy_simulation_id": "5a21723d-688f-4b10-ac33-34471acab3b4",
+    "is_viable": true,
+    "vpl": 9435670.41,
+    "tir_annual": 41.5
+  },
+  {
+    "dataset_id": "GD-PUB-012",
+    "project_name": "Benchmark JBR Brasília — MCMV Faixa 3 Águas Claras DF",
+    "legacy_simulation_id": "aebed035-c9f5-4d4b-b8ed-b4dd9903376e",
+    "is_viable": true,
+    "vpl": 17103820.83,
+    "tir_annual": 73.56
+  },
+  {
+    "dataset_id": "GD-PUB-013",
+    "project_name": "⚠️ Terreno Litigioso Salvador — Risco Jurídico",
+    "legacy_simulation_id": "dca15f88-c197-4267-a842-b1bf842146a7",
+    "is_viable": true,
+    "vpl": 2890251.97,
+    "tir_annual": 22.86
+  },
+  {
+    "dataset_id": "GD-PUB-014",
+    "project_name": "⚠️ Interior Profundo MT — Cidade Pequena Sinop",
+    "legacy_simulation_id": "ef36f864-6380-4aec-bbe9-ef075ebe6f3c",
+    "is_viable": true,
+    "vpl": 8735410.82,
+    "tir_annual": 124.32
+  },
+  {
+    "dataset_id": "GD-PUB-015",
+    "project_name": "⚠️ Retrofit Brownfield Mooca SP — Custo Proibitivo",
+    "legacy_simulation_id": "409c8091-4588-436c-bacc-c9eddb310861",
+    "is_viable": false,
+    "vpl": -58195606.23,
+    "tir_annual": 0.0
+  }
+]

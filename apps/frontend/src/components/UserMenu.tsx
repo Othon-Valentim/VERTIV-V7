@@ -45,19 +45,19 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors"
+        className="flex items-center gap-2 p-2 rounded-sm hover:bg-secondary/20 transition-colors"
       >
-        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium text-sm">
+        <div className="h-8 w-8 rounded-sm bg-primary flex items-center justify-center text-white font-bold text-sm">
           {userInitial}
         </div>
-        <span className="text-sm font-medium hidden md:block">{userName}</span>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <span className="text-sm font-bold text-primary hidden md:block">{userName}</span>
+        <ChevronDown className={`h-4 w-4 text-primary transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-lg shadow-xl py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="px-4 py-3 border-b border-border">
-            <p className="text-sm font-medium truncate">{userName}</p>
+        <div className="absolute right-0 mt-2 w-56 bg-white border border-primary/20 rounded-sm shadow-xl py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="px-4 py-3 border-b border-primary/10">
+            <p className="text-sm font-bold text-primary truncate">{userName}</p>
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
 

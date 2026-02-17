@@ -1,6 +1,7 @@
 import polars as pl
 import numpy_financial as npf
-from typing import List, Dict
+from typing import List, Dict, Optional
+from src.vertiv.biz import tropicalize
 
 
 class CashFlowEngine:
@@ -31,13 +32,15 @@ class CashFlowEngine:
         units: int,
         avg_price: float,
         cost_total: float,
+        land_cost: float = 0.0,
         start_sales_month: int = 6,
-        wacc_annual: float = 0.145,
+        construction_months: int = 36,
+        wacc_annual: Optional[float] = None,
         use_ret: bool = True,
         permuta_pct: float = 0.0,
         funding_model: str = "SBPE",
-        incc_annual: float = 0.06,
-        ipca_annual: float = 0.045,
+        incc_annual: Optional[float] = None,
+        ipca_annual: Optional[float] = None,
     ) -> dict:
         """
         v6.1.0-SINGULARITY (TROPICALIZED)
@@ -47,12 +50,32 @@ class CashFlowEngine:
         - Funding: SBPE (Late Revenue) vs ASSOCIATIVO (Front-loaded Revenue).
         - Inflation indices differentiated (INCC vs IPCA).
         """
-        # 1. Time Series
-        lf = pl.LazyFrame({"month": list(range(self.months + 1))})
+        # 0. Tropicalization Resolution
+        wacc_annual = (
+            wacc_annual
+            if wacc_annual is not None
+            else tropicalize("WACC_ANNUAL", 0.145)
+        )
+        incc_annual = (
+            incc_annual if incc_annual is not None else tropicalize("INCC_ANNUAL", 0.06)
+        )
+        ipca_annual = (
+            ipca_annual
+            if ipca_annual is not None
+            else tropicalize("IPCA_ANNUAL", 0.045)
+        )
+
+        # 1. Time Series — use project lifecycle, not 360 months
+        # Total period = construction + post-sales buffer
+        total_months = max(self.months, construction_months + 12)
+        lf = pl.LazyFrame({"month": list(range(total_months + 1))})
 
         # 2. Units after Permuta
         effective_units = units * (1.0 - permuta_pct)
-        units_per_month = effective_units / 24
+        # Sales span the construction period minus ramp-up
+        sales_duration = max(construction_months - start_sales_month, 12)
+        units_per_month = effective_units / sales_duration
+        end_sales_month = start_sales_month + sales_duration
 
         # 3. Monthly Indices
         incc_m = (1 + incc_annual) ** (1 / 12) - 1
@@ -64,7 +87,7 @@ class CashFlowEngine:
         lf = lf.with_columns(
             pl.when(
                 (pl.col("month") >= start_sales_month)
-                & (pl.col("month") < start_sales_month + 24)
+                & (pl.col("month") < end_sales_month)
             )
             .then(pl.lit(units_per_month))
             .otherwise(pl.lit(0.0))
@@ -82,11 +105,19 @@ class CashFlowEngine:
                     * pl.lit(avg_price)
                     * ((1 + ipca_m) ** pl.col("month"))
                 ).alias("revenue_gross"),
-                # Construction Cost + INCC correction
-                pl.when(pl.col("month") <= 36)
-                .then(pl.lit(cost_total / 36) * ((1 + incc_m) ** pl.col("month")))
+                # Construction Cost + INCC correction (use configurable period)
+                pl.when(pl.col("month") <= construction_months)
+                .then(
+                    pl.lit(cost_total / construction_months)
+                    * ((1 + incc_m) ** pl.col("month"))
+                )
                 .otherwise(pl.lit(0.0))
                 .alias("construction_cost"),
+                # Land cost at month 0
+                pl.when(pl.col("month") == 0)
+                .then(pl.lit(land_cost))
+                .otherwise(pl.lit(0.0))
+                .alias("land_cost"),
             ]
         )
 
@@ -96,7 +127,7 @@ class CashFlowEngine:
             # We simulate this by front-loading 80% of sales revenue during construction
             lf = lf.with_columns(
                 [
-                    pl.when(pl.col("month") <= 36)
+                    pl.when(pl.col("month") <= construction_months)
                     .then(pl.col("revenue_gross") * 0.8)
                     .otherwise(pl.col("revenue_gross"))
                     .alias("revenue_gross")
@@ -110,6 +141,7 @@ class CashFlowEngine:
             (
                 pl.col("revenue_gross")
                 - pl.col("construction_cost")
+                - pl.col("land_cost")
                 - pl.col("tax_amount")
             ).alias("net_cash_flow")
         )
@@ -127,18 +159,39 @@ class CashFlowEngine:
         # 9. Execute
         df = lf.collect()
 
-        # 10. Metrics
+        # 10. Metrics — trim trailing zeros before IRR to avoid convergence issues
         cashflow_series = df["net_cash_flow"].to_list()
-        irr = npf.irr(cashflow_series) or 0.0
+        # Trim trailing months with ~zero cashflow (they corrupt npf.irr)
+        trimmed = cashflow_series[:]
+        while len(trimmed) > 1 and abs(trimmed[-1]) < 0.01:
+            trimmed.pop()
+
+        irr = npf.irr(trimmed) if len(trimmed) > 1 else 0.0
+        if irr is None or str(irr) == "nan":
+            irr = 0.0
         npv = df["pv_net_cash_flow"].sum()
+        vgv = effective_units * avg_price
 
         return {
             "dataframe": df.to_dicts(),
             "metrics": {
-                "irr": round(irr * 100, 2),
-                "npv": round(npv, 2),
-                "total_revenue": df["revenue_gross"].sum(),
-                "total_profit": df["net_cash_flow"].sum(),
-                "total_taxes": df["tax_amount"].sum(),
+                "irr_monthly": round(float(irr), 6),
+                "irr_annual": round(float(((1 + irr) ** 12) - 1) * 100, 2),
+                "npv": round(float(npv), 2),
+                "vgv": round(float(vgv), 2),
+                "total_revenue": round(float(df["revenue_gross"].sum()), 2),
+                "total_cost": round(
+                    float(df["construction_cost"].sum() + df["land_cost"].sum()), 2
+                ),
+                "total_profit": round(float(df["net_cash_flow"].sum()), 2),
+                "total_taxes": round(float(df["tax_amount"].sum()), 2),
+                "land_cost": round(float(land_cost), 2),
+                "construction_months": construction_months,
+                "sales_duration": sales_duration,
+                "margin_pct": (
+                    round(float(df["net_cash_flow"].sum() / vgv * 100), 2)
+                    if vgv > 0
+                    else 0.0
+                ),
             },
         }
