@@ -9,7 +9,7 @@
     "lint": "next lint",
     "generate:types": "npx openapi-typescript http://localhost:8000/openapi.json -o src/types/api.generated.ts",
     "generate:types:prod": "npx openapi-typescript https://api.vertiv.tech/openapi.json -o src/types/api.generated.ts",
-    "prebuild": "npm run generate:types || echo 'Warning: Could not generate types. Backend may be offline.'"
+    "prebuild": "npm run generate:types:prod || echo 'Warning: Could not generate types. Backend may be offline.'"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

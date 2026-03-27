@@ -3,10 +3,11 @@ VERTIV V7 — Ingestion Router
 Resilient multi-provider routing with automatic fallback.
 
 Strategy:
-1. If ZIP size > 1M tokens estimate → Force Gemini (only one with 2M context)
-2. Try primary (Gemini, cheapest) first
-3. If primary fails → silent fallback to Claude
-4. If both fail → raise critical exception
+1. ZIP < 150k tokens  → GPT-5.4 (primary, fast + precise)
+2. ZIP 150k–900k      → Claude Opus 4.6 (1M context)
+3. ZIP > 900k tokens  → Gemini 2.5 Pro (2M context, force)
+4. Any failure        → cascade fallback through remaining providers
+5. All fail           → raise critical exception
 """
 
 import logging
@@ -18,7 +19,11 @@ logger = logging.getLogger("vertiv.providers.router")
 
 # Rough estimate: 1 byte ≈ 0.25 tokens for mixed content (JSON + text)
 BYTES_TO_TOKENS_RATIO = 0.25
-CLAUDE_MAX_TOKENS = 1_000_000
+
+# Context window thresholds (tokens)
+GPT_MAX_TOKENS = 150_000       # Use GPT-5.4 below this
+CLAUDE_MAX_TOKENS = 900_000    # Use Claude Opus below this
+GEMINI_MAX_TOKENS = 2_000_000  # Gemini 2.5 Pro ceiling
 
 
 class IngestionRouter:
@@ -26,12 +31,17 @@ class IngestionRouter:
 
     def __init__(
         self,
-        primary: LLMProvider,
-        fallback: LLMProvider,
+        gpt: LLMProvider,
+        claude: LLMProvider,
+        gemini: LLMProvider,
     ) -> None:
-        self.primary = primary
-        self.fallback = fallback
+        self.gpt = gpt        # Primary: GPT-5.4 (fast, precise, 200k)
+        self.claude = claude  # Mid-tier: Claude Opus 4.6 (1M context)
+        self.gemini = gemini  # Heavy: Gemini 2.5 Pro (2M context)
         self._last_provider_used: Optional[str] = None
+        # Legacy compatibility
+        self.primary = gpt
+        self.fallback = claude
 
     @property
     def last_provider_used(self) -> Optional[str]:
@@ -41,19 +51,34 @@ class IngestionRouter:
         """Estimate token count from byte size."""
         return int(content_bytes * BYTES_TO_TOKENS_RATIO)
 
-    def _should_force_gemini(self, content_bytes: int) -> bool:
+    def _select_provider_by_size(self, content_bytes: int) -> LLMProvider:
         """
-        If content exceeds Claude's 1M token limit,
-        force Gemini (2M context) — bypass Claude entirely.
+        Select optimal provider based on estimated token count.
+        - < 150k tokens  → GPT-5.4 (primary)
+        - 150k–900k      → Claude Opus 4.6 (1M context)
+        - > 900k tokens  → Gemini 2.5 Pro (2M context)
         """
         estimated_tokens = self._estimate_tokens(content_bytes)
         if estimated_tokens > CLAUDE_MAX_TOKENS:
             logger.info(
-                f"Content ~{estimated_tokens:,} tokens > Claude limit "
-                f"({CLAUDE_MAX_TOKENS:,}). Forcing Gemini."
+                f"~{estimated_tokens:,} tokens > Claude limit → forcing Gemini 2.5 Pro."
             )
-            return True
-        return False
+            return self.gemini
+        elif estimated_tokens > GPT_MAX_TOKENS:
+            logger.info(
+                f"~{estimated_tokens:,} tokens > GPT limit → routing to Claude Opus."
+            )
+            return self.claude
+        else:
+            logger.info(
+                f"~{estimated_tokens:,} tokens → routing to GPT-5.4 (primary)."
+            )
+            return self.gpt
+
+    def _get_fallback_chain(self, primary: LLMProvider) -> list:
+        """Return fallback providers in order, excluding the primary."""
+        all_providers = [self.gpt, self.claude, self.gemini]
+        return [p for p in all_providers if p.name != primary.name]
 
     async def extract(
         self,
@@ -61,7 +86,13 @@ class IngestionRouter:
         extraction_schema: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
-        Route extraction to the optimal provider with fallback.
+        Route extraction to the optimal provider with cascade fallback.
+
+        Strategy:
+        1. Select primary provider based on content size
+        2. Try primary
+        3. On failure, cascade through remaining providers in order
+        4. If all fail, raise critical exception
 
         Args:
             raw_content: Raw bytes from the ZIP Data Room
@@ -81,35 +112,41 @@ class IngestionRouter:
             f"~{estimated_tokens:,} tokens"
         )
 
-        # Strategy 1: Force Gemini for large payloads
-        if self._should_force_gemini(content_size):
-            return await self._try_provider(
-                self.primary, raw_content, extraction_schema, fallback_allowed=False
-            )
+        # Select primary provider by content size
+        primary = self._select_provider_by_size(content_size)
+        fallbacks = self._get_fallback_chain(primary)
 
-        # Strategy 2: Try primary (Gemini), fallback to Claude
+        errors = {}
+
+        # Try primary
         try:
-            return await self._try_provider(
-                self.primary, raw_content, extraction_schema, fallback_allowed=True
+            result = await self._try_provider(
+                primary, raw_content, extraction_schema, fallback_allowed=True
             )
-        except Exception as primary_error:
-            logger.warning(
-                f"Primary provider ({self.primary.name}) failed: {primary_error}. "
-                f"Falling back to {self.fallback.name}."
-            )
+            return result
+        except Exception as e:
+            errors[primary.name] = str(e)
+            logger.warning(f"Primary ({primary.name}) failed: {e}. Trying fallbacks...")
+
+        # Cascade through fallbacks
+        for fallback in fallbacks:
             try:
-                return await self._try_provider(
-                    self.fallback,
-                    raw_content,
-                    extraction_schema,
-                    fallback_allowed=False,
+                logger.info(f"Attempting fallback: {fallback.name}")
+                result = await self._try_provider(
+                    fallback, raw_content, extraction_schema, fallback_allowed=False
                 )
-            except Exception as fallback_error:
-                raise RuntimeError(
-                    f"CRITICAL: All LLM providers failed.\n"
-                    f"Primary ({self.primary.name}): {primary_error}\n"
-                    f"Fallback ({self.fallback.name}): {fallback_error}"
-                ) from fallback_error
+                return result
+            except Exception as e:
+                errors[fallback.name] = str(e)
+                logger.warning(f"Fallback ({fallback.name}) failed: {e}.")
+
+        # All providers failed
+        error_summary = "\n".join(
+            [f"  {name}: {err}" for name, err in errors.items()]
+        )
+        raise RuntimeError(
+            f"CRITICAL: All LLM providers failed.\n{error_summary}"
+        )
 
     async def _try_provider(
         self,
@@ -138,11 +175,42 @@ class IngestionRouter:
 
 
 def create_default_router() -> IngestionRouter:
-    """Create the default router with Gemini primary + Claude fallback."""
-    from apps.worker.src.providers.gemini import GeminiProvider
-    from apps.worker.src.providers.claude import ClaudeProvider
+    """
+    Create the default router with environment-driven provider selection.
 
+    USE_MOCK=1 → MockLLMProvider (golden data, zero tokens, dry run)
+    USE_MOCK=0 → GPT-5.4 (primary) + Claude Opus (mid) + Gemini 2.5 Pro (heavy)
+
+    Routing strategy by content size:
+    - < 150k tokens  → GPT-5.4
+    - 150k–900k      → Claude Opus 4.6
+    - > 900k tokens  → Gemini 2.5 Pro
+    All with cascade fallback if primary fails.
+    """
+    import os
+
+    use_mock = os.getenv("USE_MOCK", "0") == "1"
+
+    if use_mock:
+        from apps.worker.src.providers.mock import MockLLMProvider
+
+        logger.info(
+            "🧪 USE_MOCK=1 → MockLLMProvider activated. "
+            "Zero LLM tokens will be consumed."
+        )
+        mock = MockLLMProvider()
+        return IngestionRouter(gpt=mock, claude=mock, gemini=mock)
+
+    from apps.worker.src.providers.openai import OpenAIProvider
+    from apps.worker.src.providers.claude import ClaudeProvider
+    from apps.worker.src.providers.gemini import GeminiProvider
+
+    logger.info(
+        "🚀 Production mode → GPT-5.4 (primary) + "
+        "Claude Opus 4.6 (mid) + Gemini 2.5 Pro (heavy)"
+    )
     return IngestionRouter(
-        primary=GeminiProvider(),
-        fallback=ClaudeProvider(),
+        gpt=OpenAIProvider(),
+        claude=ClaudeProvider(),
+        gemini=GeminiProvider(),
     )

@@ -1,6 +1,6 @@
 """
-VERTIV V7 — Claude Provider (Anthropic Claude Opus 4.6)
-Premium fallback for large documents. 1M context window.
+VERTIV V7 — OpenAI Provider (GPT-5.4)
+Primary extraction engine. Fast, precise, cost-effective for standard payloads.
 """
 
 import os
@@ -11,7 +11,7 @@ from typing import Any, Dict
 
 from apps.worker.src.providers.base import LLMProvider
 
-logger = logging.getLogger("vertiv.providers.claude")
+logger = logging.getLogger("vertiv.providers.openai")
 
 SYSTEM_INSTRUCTION = (
     "Você é um Analista de Risco Institucional Sênior da VERTIV. "
@@ -24,18 +24,18 @@ SYSTEM_INSTRUCTION = (
 )
 
 
-class ClaudeProvider(LLMProvider):
+class OpenAIProvider(LLMProvider):
     """
-    Anthropic Claude Opus 4.6 Provider for Data Room Extraction.
-    Premium fallback — optimal for large documents (150k–900k tokens).
-    Uses 1M context window for complex Data Rooms.
+    OpenAI GPT-5.4 Provider for Data Room Extraction.
+    Primary provider — optimal for payloads up to 150k tokens.
+    Uses structured JSON output mode for deterministic parsing.
     """
 
     def __init__(self) -> None:
-        self.api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        self.model_name = os.getenv("CLAUDE_MODEL", "anthropic/claude-opus-4-6")
+        self.api_key = os.getenv("OPENAI_API_KEY", "")
+        self.model_name = os.getenv("OPENAI_MODEL", "gpt-5.4")
         if not self.api_key:
-            logger.warning("[ClaudeProvider] ANTHROPIC_API_KEY is not set.")
+            logger.warning("[OpenAIProvider] OPENAI_API_KEY is not set.")
 
     # ── Protocol properties ─────────────────────────────────────────────
 
@@ -45,15 +45,15 @@ class ClaudeProvider(LLMProvider):
 
     @property
     def max_context_tokens(self) -> int:
-        return 1_000_000  # 1M tokens
+        return 200_000
 
     @property
     def cost_per_million_tokens_input(self) -> float:
-        return 15.00  # USD per million input tokens (Opus)
+        return 2.50  # USD per million input tokens
 
     @property
     def cost_per_million_tokens_output(self) -> float:
-        return 75.00  # USD per million output tokens (Opus)
+        return 10.00  # USD per million output tokens
 
     # ── Protocol methods ────────────────────────────────────────────────
 
@@ -62,7 +62,7 @@ class ClaudeProvider(LLMProvider):
         try:
             return bool(self.api_key)
         except Exception as e:
-            logger.error(f"[ClaudeProvider] Health check failed: {e}")
+            logger.error(f"[OpenAIProvider] Health check failed: {e}")
             return False
 
     async def extract_structured_data(
@@ -71,17 +71,17 @@ class ClaudeProvider(LLMProvider):
         extraction_schema: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
-        Extract structured data via Claude Opus 4.6.
-        Preferred for large payloads that exceed GPT-5.4 context window.
+        Extract structured data via GPT-5.4 with JSON mode enforcement.
+        Implements exponential backoff for rate limits.
         """
         try:
-            import anthropic
+            from openai import AsyncOpenAI
         except ImportError:
             raise ImportError(
-                "anthropic package not installed. Run: pip install anthropic"
+                "openai package not installed. Run: pip install openai"
             )
 
-        client = anthropic.AsyncAnthropic(api_key=self.api_key)
+        client = AsyncOpenAI(api_key=self.api_key)
         text_content = raw_content.decode("utf-8", errors="replace")
 
         prompt = (
@@ -90,7 +90,7 @@ class ClaudeProvider(LLMProvider):
             f"{text_content}\n\n"
             f"=== FIM DO CONTEÚDO ===\n\n"
             f"Extraia as informações conforme as regras do analista sênior VERTIV. "
-            f"Retorne APENAS um objeto JSON válido, sem markdown, sem explicações.\n"
+            f"Retorne puramente um objeto JSON válido.\n"
             f"Schema esperado (VertivAgenticSchema):\n"
             f"{json.dumps(extraction_schema, indent=2)}\n"
         )
@@ -101,41 +101,32 @@ class ClaudeProvider(LLMProvider):
         for attempt in range(max_retries):
             try:
                 logger.info(
-                    f"[ClaudeProvider] Enviando para {self.model_name} "
+                    f"[OpenAIProvider] Enviando para {self.model_name} "
                     f"(attempt {attempt+1}/{max_retries})..."
                 )
 
-                # Use model name without provider prefix for Anthropic SDK
-                model_id = self.model_name.replace("anthropic/", "")
-
-                message = await client.messages.create(
-                    model=model_id,
+                response = await client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_INSTRUCTION},
+                        {"role": "user", "content": prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0,  # Deterministic — critical for financial extraction
                     max_tokens=8192,
-                    temperature=0,  # Deterministic
-                    system=SYSTEM_INSTRUCTION,
-                    messages=[{"role": "user", "content": prompt}],
                 )
 
-                raw_text = message.content[0].text
-                if not raw_text or not raw_text.strip():
-                    raise ValueError("[ClaudeProvider] Empty response received.")
-
-                # Strip markdown if leaked
-                raw_json = raw_text.strip()
-                if raw_json.startswith("```json"):
-                    raw_json = raw_json[7:]
-                    raw_json = raw_json.rstrip("```").strip()
-                elif raw_json.startswith("```"):
-                    raw_json = raw_json[3:]
-                    raw_json = raw_json.rstrip("```").strip()
+                raw_json = response.choices[0].message.content
+                if not raw_json or not raw_json.strip():
+                    raise ValueError("[OpenAIProvider] Empty response received.")
 
                 parsed_data = json.loads(raw_json)
-                logger.info(f"[ClaudeProvider] Extraction complete via {self.model_name}.")
+                logger.info(f"[OpenAIProvider] Extraction complete via {self.model_name}.")
                 return parsed_data
 
             except Exception as e:
                 logger.warning(
-                    f"[ClaudeProvider] Error on attempt {attempt+1}: {e}"
+                    f"[OpenAIProvider] Error on attempt {attempt+1}: {e}"
                 )
                 if attempt == max_retries - 1:
                     raise
