@@ -32,7 +32,7 @@ from src.domain.schemas import (
 )
 from src.engine.cashflow import CashFlowEngine
 from src.engine.real_options import RealOptionsEngine
-from src.api.routes import p1, analysis
+from src.api.routes import p1, analysis, ingest
 from src.services.task_queue import TaskDispatcher
 from src.services.search_engine import SearchEngine
 
@@ -83,6 +83,7 @@ app.add_middleware(
 # Include routers
 app.include_router(p1.router)
 app.include_router(analysis.router)
+app.include_router(ingest.router, prefix="/api/v7", tags=["V7 Ingestion"])
 # V7: Wizard removed — Data Room ingestion replaces manual entry
 
 
