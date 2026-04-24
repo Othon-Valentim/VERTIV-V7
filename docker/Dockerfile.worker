@@ -25,4 +25,4 @@ COPY apps/worker /app
 RUN adduser --disabled-password --gecos "" vertivuser
 USER vertivuser
 
-CMD ["uvicorn", "core.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "worker_daemon.py"]

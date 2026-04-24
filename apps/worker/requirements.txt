@@ -3,6 +3,9 @@ uvicorn
 polars
 pydantic
 supabase
+python-dotenv
 numpy
 scipy
 numpy-financial
+PyMuPDF
+google-generativeai

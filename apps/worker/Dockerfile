@@ -2,16 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# System requirements might be needed for PyMuPDF or Polars
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies
+# Copy dependencies list and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy worker code
+# Copy application source code
 COPY . .
 
-CMD ["python", "-m", "core.main"]
+CMD ["python", "worker_daemon.py"]

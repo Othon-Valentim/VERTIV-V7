@@ -12,7 +12,7 @@ Strategy:
 import logging
 from typing import Any, Dict, Optional
 
-from apps.worker.src.providers.base import LLMProvider
+from .base import LLMProvider
 
 logger = logging.getLogger("vertiv.providers.router")
 
@@ -138,10 +138,30 @@ class IngestionRouter:
 
 
 def create_default_router() -> IngestionRouter:
-    """Create the default router with Gemini primary + Claude fallback."""
-    from apps.worker.src.providers.gemini import GeminiProvider
-    from apps.worker.src.providers.claude import ClaudeProvider
+    """
+    Create the default router with environment-driven provider selection.
 
+    USE_MOCK=1 → MockLLMProvider (golden data, zero tokens, dry run)
+    USE_MOCK=0 → Gemini primary + Claude fallback (production)
+    """
+    import os
+
+    use_mock = os.getenv("USE_MOCK", "0") == "1"
+
+    if use_mock:
+        from .mock import MockLLMProvider
+
+        logger.info(
+            "🧪 USE_MOCK=1 → MockLLMProvider activated. "
+            "Zero LLM tokens will be consumed."
+        )
+        mock = MockLLMProvider()
+        return IngestionRouter(primary=mock, fallback=mock)
+
+    from .gemini import GeminiProvider
+    from .claude import ClaudeProvider
+
+    logger.info("🚀 Production mode → Gemini (primary) + Claude (fallback)")
     return IngestionRouter(
         primary=GeminiProvider(),
         fallback=ClaudeProvider(),
