@@ -10,6 +10,7 @@ dist/
 .coverage
 .pytest_cache/
 .vercel/
+supabase/.temp/
 .next/
 *.tsbuildinfo
 .venv/

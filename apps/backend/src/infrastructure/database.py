@@ -9,16 +9,33 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 _client: Client = None
 
+
 def get_supabase_client() -> Client:
     global _client
     if _client:
         return _client
-    
+
     if not SUPABASE_URL or not SUPABASE_KEY:
         # In a real enterprise app, we might raise an error here.
         # For this phase, we'll log a warning and return a client that might fail if used.
         # Or better, we raise an error to fail fast.
-        print("WARNING: SUPABASE_URL or SUPABASE_KEY is missing. Database operations will fail.")
-    
+        print(
+            "WARNING: SUPABASE_URL or SUPABASE_KEY is missing. Database operations will fail."
+        )
+
     _client = create_client(SUPABASE_URL, SUPABASE_KEY)
     return _client
+
+
+def get_supabase_client_for_user(user_jwt: str) -> Client:
+    """
+    Create a Supabase client authenticated as the given user.
+
+    This sets the Authorization header to the user's JWT so that
+    Supabase RLS policies using auth.uid() resolve correctly for both
+    PostgREST and Storage requests.
+    """
+    client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    client.options.headers["Authorization"] = f"Bearer {user_jwt}"
+    client.postgrest.auth(user_jwt)
+    return client
