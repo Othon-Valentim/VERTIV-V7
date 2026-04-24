@@ -32,7 +32,7 @@ from src.domain.schemas import (
 )
 from src.engine.cashflow import CashFlowEngine
 from src.engine.real_options import RealOptionsEngine
-from src.api.routes import p1, analysis, ingest
+from src.api.routes import p1, analysis, ingest, webmcp
 from src.services.task_queue import TaskDispatcher
 from src.services.search_engine import SearchEngine
 
@@ -54,8 +54,14 @@ import traceback
 
 # Environment
 ENV = os.getenv("ENV", "development")
+WEBMCP_ENABLED = os.getenv("WEBMCP_ENABLED", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS", "https://vertiv.tech,http://localhost:3000"
+    "ALLOWED_ORIGINS", "https://vertiv.tech,https://app.vertiv.tech"
 ).split(",")
 
 app = FastAPI(
@@ -64,13 +70,21 @@ app = FastAPI(
     description="Global Edition - Real Estate Viability Analysis Platform with Bank-Grade Security",
 )
 
-# CORS - Locked down for production
+if ENV == "development":
+    for origin in (
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+    ):
+        if origin not in ALLOWED_ORIGINS:
+            ALLOWED_ORIGINS.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS if ENV == "production" else ["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-WebMCP-Origin"],
 )
 
 # Rate Limiting Middleware
@@ -83,8 +97,10 @@ app.add_middleware(
 # Include routers
 app.include_router(p1.router)
 app.include_router(analysis.router)
-app.include_router(ingest.router, prefix="/api/v7", tags=["V7 Ingestion"])
 # V7: Wizard removed — Data Room ingestion replaces manual entry
+app.include_router(ingest.router, prefix="/api/v7", tags=["V7 Ingestion"])
+if WEBMCP_ENABLED:
+    app.include_router(webmcp.router, prefix="/api/v7", tags=["WebMCP"])
 
 
 # ============================================================================
