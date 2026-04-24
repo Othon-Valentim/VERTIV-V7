@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 .env
 .env.local
+.env.production
+*.env.production
 .DS_Store
 dist/
 .coverage

@@ -23,14 +23,18 @@ class SimulationRepository:
         }
         client.table(self.table).insert(row).execute()
 
-    def get(self, simulation_id: str) -> Optional[Dict[str, Any]]:
+    def get(
+        self, simulation_id: str, user_id: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         """
-        Retrieves a simulation by ID.
+        Retrieves a simulation by ID, optionally scoped to a user.
         """
         client = get_supabase_client()
-        response = (
-            client.table(self.table).select("*").eq("id", simulation_id).execute()
-        )
+        query = client.table(self.table).select("*").eq("id", simulation_id)
+        if user_id:
+            query = query.eq("user_id", user_id)
+
+        response = query.execute()
         if response.data and len(response.data) > 0:
             return response.data[0]
         return None

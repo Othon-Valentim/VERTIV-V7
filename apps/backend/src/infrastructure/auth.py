@@ -4,13 +4,11 @@ Integrates with Supabase JWT for secure API access.
 """
 
 import os
-import httpx
 from typing import Optional
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import jwt
-from jwt import PyJWKClient
 from functools import lru_cache
 
 # Supabase Configuration
@@ -46,9 +44,8 @@ def get_supabase_jwt_secret() -> str:
     """
     secret = os.getenv("SUPABASE_JWT_SECRET")
     if not secret:
-        # Fallback: try to use the anon key's secret (not recommended for production)
-        print("WARNING: SUPABASE_JWT_SECRET not set. Using fallback verification.")
-    return secret or ""
+        raise RuntimeError("SUPABASE_JWT_SECRET must be set for JWT verification.")
+    return secret
 
 
 def verify_supabase_token(token: str) -> TokenPayload:
@@ -67,22 +64,15 @@ def verify_supabase_token(token: str) -> TokenPayload:
     try:
         secret = get_supabase_jwt_secret()
 
-        if secret:
-            # Verify with secret
-            payload = jwt.decode(
-                token,
-                secret,
-                algorithms=["HS256"],
-                audience="authenticated"
-            )
-        else:
-            # Decode without verification (ONLY for development)
-            # In production, always verify!
-            payload = jwt.decode(
-                token,
-                options={"verify_signature": False}
-            )
-            print("WARNING: JWT signature not verified. Set SUPABASE_JWT_SECRET in production!")
+        payload = jwt.decode(
+            token,
+            secret,
+            algorithms=["HS256"],
+            audience="authenticated"
+        )
+
+        if not payload.get("sub"):
+            raise jwt.InvalidTokenError("Missing subject claim")
 
         return TokenPayload(
             sub=payload.get("sub", ""),
@@ -102,8 +92,13 @@ def verify_supabase_token(token: str) -> TokenPayload:
     except jwt.InvalidTokenError as e:
         raise HTTPException(
             status_code=401,
-            detail=f"Invalid token: {str(e)}",
+            detail="Invalid token.",
             headers={"WWW-Authenticate": "Bearer"}
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e),
         )
 
 

@@ -156,7 +156,7 @@ async def get_simulation(
     Requires JWT authentication.
     """
     repo = SimulationRepository()
-    data = repo.get(simulation_id)
+    data = repo.get(simulation_id, user.id)
 
     if not data:
         raise HTTPException(status_code=404, detail="Simulation not found")
@@ -177,6 +177,7 @@ async def get_simulation(
 async def simulation_status_stream(
     simulation_id: str,
     repo: SimulationRepository,
+    user_id: str,
     timeout_seconds: int = 300,  # 5 minutos max
 ) -> AsyncGenerator[str, None]:
     """
@@ -203,7 +204,7 @@ async def simulation_status_stream(
             break
 
         # Buscar status atual
-        data = repo.get(simulation_id)
+        data = repo.get(simulation_id, user_id)
 
         if not data:
             yield f"event: error\ndata: {json.dumps({'error': 'Simulation not found'})}\n\n"
@@ -274,14 +275,14 @@ async def stream_simulation_status(
     repo = SimulationRepository()
 
     # Verificar se simulação existe
-    data = repo.get(simulation_id)
+    data = repo.get(simulation_id, user.id)
     if not data:
         raise HTTPException(status_code=404, detail="Simulation not found")
 
     print(f"[SSE] User {user.email} connected to stream for simulation {simulation_id}")
 
     return StreamingResponse(
-        simulation_status_stream(simulation_id, repo),
+        simulation_status_stream(simulation_id, repo, user.id),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
