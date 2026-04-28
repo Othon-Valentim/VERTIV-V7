@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api-client";
+
+const MAX_UPLOAD_MB = 50;
 
 export default function DataRoomUploadPage() {
   const router = useRouter();
@@ -10,6 +13,12 @@ export default function DataRoomUploadPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // UUID v4 strict regex — The Titanium Gate
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isUuidInvalid =
+    legacySimId.trim() !== "" && !uuidRegex.test(legacySimId.trim());
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -30,7 +39,7 @@ export default function DataRoomUploadPage() {
     setUploadError(null);
 
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.name.endsWith(".zip")) {
+    if (droppedFile && droppedFile.name.toLowerCase().endsWith(".zip")) {
       setFile(droppedFile);
     } else {
       setUploadError("Apenas arquivos .zip são aceitos.");
@@ -41,17 +50,28 @@ export default function DataRoomUploadPage() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setUploadError(null);
       const selected = e.target.files?.[0];
-      if (selected && selected.name.endsWith(".zip")) {
+      if (selected && selected.name.toLowerCase().endsWith(".zip")) {
         setFile(selected);
       } else {
         setUploadError("Apenas arquivos .zip são aceitos.");
       }
     },
-    []
+    [],
   );
 
   const handleSubmit = async () => {
     if (!file) return;
+    // Titanium Gate: Block if UUID format is invalid
+    if (isUuidInvalid) {
+      setUploadError(
+        "Erro: O ID de Calibração deve ser um UUID válido (36 caracteres) do histórico V6. Exemplo: bf2e52b9-203b-4e04-a22e-9a9f7f49bb1d",
+      );
+      return;
+    }
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      setUploadError(`Arquivo excede o limite de ${MAX_UPLOAD_MB} MB.`);
+      return;
+    }
     setIsUploading(true);
     setUploadError(null);
 
@@ -62,20 +82,22 @@ export default function DataRoomUploadPage() {
         formData.append("legacy_simulation_id", legacySimId.trim());
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/api/v7/ingest`, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await api.post("/api/v7/ingest", formData);
 
       if (!res.ok) {
-        throw new Error(`Upload failed: ${res.status}`);
+        const errJson = await res.json().catch(() => null);
+        const errText = await res.text().catch(() => "");
+        const detail =
+          errJson?.detail || errText || `Falha no upload (${res.status}).`;
+        throw new Error(detail);
       }
 
       const data = await res.json();
       router.push(`/dashboard/audit/${data.ingestion_id}`);
-    } catch (err: any) {
-      setUploadError(err.message || "Erro no upload.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Erro inesperado no upload.";
+      setUploadError(message);
     } finally {
       setIsUploading(false);
     }
@@ -112,8 +134,8 @@ export default function DataRoomUploadPage() {
             isDragging
               ? "border-emerald-400 bg-emerald-950/20"
               : file
-              ? "border-emerald-600 bg-emerald-950/10"
-              : "border-zinc-700 hover:border-zinc-500 bg-zinc-900/50"
+                ? "border-emerald-600 bg-emerald-950/10"
+                : "border-zinc-700 hover:border-zinc-500 bg-zinc-900/50"
           }
         `}
         onDragOver={handleDragOver}
@@ -182,15 +204,25 @@ export default function DataRoomUploadPage() {
           type="text"
           value={legacySimId}
           onChange={(e) => setLegacySimId(e.target.value)}
-          placeholder="ex: a1b2c3d4-5678-..."
-          className="
-            w-full bg-zinc-900 border border-zinc-800 rounded-none px-4 py-3
+          placeholder="ex: bf2e52b9-203b-4e04-a22e-9a9f7f49bb1d"
+          className={`
+            w-full bg-zinc-900 border rounded-none px-4 py-3
             text-sm font-mono text-zinc-300 placeholder-zinc-700
-            focus:outline-none focus:border-emerald-600
-            transition-colors
-          "
+            focus:outline-none transition-colors
+            ${
+              isUuidInvalid
+                ? "border-red-600 focus:border-red-500"
+                : "border-zinc-800 focus:border-emerald-600"
+            }
+          `}
         />
-        {legacySimId.trim() && (
+        {isUuidInvalid && (
+          <p className="mt-2 text-xs text-red-400 font-mono">
+            ✗ Formato inválido — use um UUID de 36 caracteres
+            (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+          </p>
+        )}
+        {legacySimId.trim() && !isUuidInvalid && (
           <p className="mt-2 text-xs text-amber-500/80 font-mono">
             ⚡ Modo Calibração ativo — resultado será comparado com histórico V6
           </p>
@@ -207,12 +239,12 @@ export default function DataRoomUploadPage() {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={!file || isUploading}
+        disabled={!file || isUploading || isUuidInvalid}
         className={`
           mt-8 px-12 py-4 font-mono text-sm uppercase tracking-[0.2em]
           transition-all duration-200 rounded-none
           ${
-            !file || isUploading
+            !file || isUploading || isUuidInvalid
               ? "bg-zinc-800 text-zinc-600 cursor-not-allowed"
               : "bg-emerald-600 text-white hover:bg-emerald-500 active:bg-emerald-700"
           }
