@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-test.describe("V7 Upload -> Audit (mocked)", () => {
+test.describe("@v7 V7 Upload -> Audit (mocked)", () => {
   const terminalAuditBody = {
     status: "AUTONOMOUS_SENTENCED",
     accuracy_score: 96.2,
