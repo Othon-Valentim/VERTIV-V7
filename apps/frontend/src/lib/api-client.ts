@@ -1,4 +1,11 @@
 import { createClient } from "./supabase";
+import type {
+  ConfirmSentenceRequest,
+  IngestResponse,
+  IngestionActionResponse,
+  IngestionDetail,
+  ManualAuditRequest,
+} from "../types/v7-api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -82,3 +89,89 @@ export const api = {
   delete: (path: string, options?: RequestInit) =>
     authenticatedFetch(path, { ...options, method: "DELETE" }),
 };
+
+export type {
+  ConfirmSentenceRequest,
+  IngestResponse,
+  IngestionActionResponse,
+  IngestionDetail,
+  ManualAuditRequest,
+};
+
+export type ManualAuditPayload = ManualAuditRequest;
+export type ConfirmSentencePayload = ConfirmSentenceRequest;
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly detail?: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+async function parseErrorResponse(res: Response): Promise<ApiError> {
+  const body = await res.json().catch(() => null);
+  const text = body ? "" : await res.text().catch(() => "");
+  const detail = body?.detail ?? text;
+  const message =
+    typeof detail === "string" && detail
+      ? detail
+      : `Falha na API (${res.status}).`;
+  return new ApiError(message, res.status, detail);
+}
+
+async function readJsonOrThrow<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    throw await parseErrorResponse(res);
+  }
+  return res.json() as Promise<T>;
+}
+
+export async function ingestDataRoom(
+  formData: FormData,
+): Promise<IngestResponse> {
+  return readJsonOrThrow<IngestResponse>(
+    await api.post("/api/v7/ingest", formData),
+  );
+}
+
+export async function getIngestion(
+  ingestionId: string,
+): Promise<IngestionDetail> {
+  return readJsonOrThrow<IngestionDetail>(
+    await api.get(`/api/v7/ingestion/${ingestionId}`),
+  );
+}
+
+export async function requestManualAudit(
+  ingestionId: string,
+  payload: ManualAuditRequest,
+): Promise<IngestionActionResponse> {
+  return readJsonOrThrow<IngestionActionResponse>(
+    await api.post(
+      `/api/v7/ingestion/${ingestionId}/manual-audit`,
+      payload,
+      payload.idempotency_key
+        ? { headers: { "Idempotency-Key": payload.idempotency_key } }
+        : undefined,
+    ),
+  );
+}
+
+export async function confirmSentence(
+  ingestionId: string,
+  payload: ConfirmSentenceRequest,
+): Promise<IngestionActionResponse> {
+  return readJsonOrThrow<IngestionActionResponse>(
+    await api.post(
+      `/api/v7/ingestion/${ingestionId}/confirm-sentence`,
+      payload,
+      payload.idempotency_key
+        ? { headers: { "Idempotency-Key": payload.idempotency_key } }
+        : undefined,
+    ),
+  );
+}
