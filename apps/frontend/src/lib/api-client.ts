@@ -1,5 +1,6 @@
 import { createClient } from "./supabase";
 import type {
+  CompleteManualReviewRequest,
   ConfirmSentenceRequest,
   IngestResponse,
   IngestionActionResponse,
@@ -91,6 +92,7 @@ export const api = {
 };
 
 export type {
+  CompleteManualReviewRequest,
   ConfirmSentenceRequest,
   IngestResponse,
   IngestionActionResponse,
@@ -99,6 +101,7 @@ export type {
 };
 
 export type ManualAuditPayload = ManualAuditRequest;
+export type CompleteManualReviewPayload = CompleteManualReviewRequest;
 export type ConfirmSentencePayload = ConfirmSentenceRequest;
 
 export class ApiError extends Error {
@@ -153,6 +156,21 @@ export async function requestManualAudit(
   return readJsonOrThrow<IngestionActionResponse>(
     await api.post(
       `/api/v7/ingestion/${ingestionId}/manual-audit`,
+      payload,
+      payload.idempotency_key
+        ? { headers: { "Idempotency-Key": payload.idempotency_key } }
+        : undefined,
+    ),
+  );
+}
+
+export async function completeManualReview(
+  ingestionId: string,
+  payload: CompleteManualReviewRequest,
+): Promise<IngestionActionResponse> {
+  return readJsonOrThrow<IngestionActionResponse>(
+    await api.post(
+      `/api/v7/ingestion/${ingestionId}/complete-manual-review`,
       payload,
       payload.idempotency_key
         ? { headers: { "Idempotency-Key": payload.idempotency_key } }

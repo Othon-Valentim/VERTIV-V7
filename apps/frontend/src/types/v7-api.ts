@@ -25,6 +25,11 @@ export interface IngestionDetail {
   validation_metrics?: Record<string, unknown> | null;
   manual_audit_requested_at?: string | null;
   manual_audit_requested_by?: string | null;
+  manual_review_completed_at?: string | null;
+  manual_review_completed_by?: string | null;
+  manual_review_verdict?: ManualReviewVerdict | null;
+  manual_review_notes?: string | null;
+  manual_review_corrected_payload?: Record<string, unknown> | null;
   sentence_confirmed_at?: string | null;
   sentence_confirmed_by?: string | null;
   sentence_confirmation_notes?: string | null;
@@ -46,9 +51,23 @@ export interface ConfirmSentenceRequest {
   idempotency_key?: string | null;
 }
 
+export type ManualReviewVerdict =
+  | "APPROVE_WITH_NOTES"
+  | "REJECT"
+  | "REQUEST_REUPLOAD";
+
+export interface CompleteManualReviewRequest {
+  reviewer_verdict: ManualReviewVerdict;
+  notes?: string | null;
+  corrected_payload?: Record<string, unknown> | null;
+  expected_status?: IngestionStatus | string | null;
+  idempotency_key?: string | null;
+}
+
 export type IngestionActionStatus = "applied" | "idempotent_noop";
 export type IngestionAction =
   | "REQUEST_MANUAL_AUDIT"
+  | "COMPLETE_MANUAL_REVIEW"
   | "CONFIRM_SENTENCE";
 
 export interface IngestionActionResponse {
@@ -59,6 +78,9 @@ export interface IngestionActionResponse {
   current_status: IngestionStatus | string;
   audit_event_id?: string | null;
   manual_audit_requested_at?: string | null;
+  manual_review_completed_at?: string | null;
+  manual_review_completed_by?: string | null;
+  manual_review_verdict?: ManualReviewVerdict | null;
   sentence_confirmed_at?: string | null;
   sentence_confirmed_by?: string | null;
   updated_at?: string | null;

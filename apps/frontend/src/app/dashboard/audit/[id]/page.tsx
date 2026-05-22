@@ -2,7 +2,14 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { api } from "@/lib/api-client";
+import {
+  ApiError,
+  completeManualReview,
+  confirmSentence,
+  getIngestion,
+  requestManualAudit,
+} from "@/lib/api-client";
+import type { ManualReviewVerdict } from "@/types/v7-api";
 
 interface VarianceRow {
   field: string;
@@ -54,6 +61,28 @@ function formatPct(v: number | undefined | null, decimals = 2): string {
   return `${v.toFixed(decimals)}%`;
 }
 
+function createIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function readApiError(error: unknown): string {
+  if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+    return "Sessão expirada. Faça login novamente.";
+  }
+  if (error instanceof ApiError && error.status === 404) {
+    return "Ingestão não encontrada ou sem acesso.";
+  }
+  if (error instanceof ApiError && error.status === 409) {
+    return "Status mudou, ação não permitida ou revisão ausente. Atualize a página e tente novamente.";
+  }
+  return error instanceof Error
+    ? error.message
+    : "Erro de conexão ao executar ação.";
+}
+
 /* ================================================================ */
 
 export default function AuditPage() {
@@ -63,6 +92,14 @@ export default function AuditPage() {
   const [ingestion, setIngestion] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [manualReviewNotes, setManualReviewNotes] = useState("");
+  const [manualReviewVerdict, setManualReviewVerdict] =
+    useState<ManualReviewVerdict>("APPROVE_WITH_NOTES");
+  const [submittingAction, setSubmittingAction] = useState<
+    "manual-audit" | "complete-review" | "confirm-sentence" | null
+  >(null);
   const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const stopPolling = useCallback(() => {
@@ -80,22 +117,7 @@ export default function AuditPage() {
     }
 
     try {
-      const res = await api.get(`/api/v7/ingestion/${ingestionId}`);
-
-      if (res.status === 401 || res.status === 403) {
-        setLoadError("Sessão expirada. Faça login novamente.");
-        return false;
-      }
-      if (res.status === 404) {
-        setLoadError("Ingestão não encontrada ou sem acesso.");
-        return false;
-      }
-      if (!res.ok) {
-        const errorBody = await res.text().catch(() => "");
-        throw new Error(errorBody || `Falha ao consultar ingestão (${res.status}).`);
-      }
-
-      const data = await res.json();
+      const data = await getIngestion(ingestionId);
       setIngestion(data);
       setLoadError(null);
 
@@ -104,11 +126,7 @@ export default function AuditPage() {
       }
       return true;
     } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erro de conexão ao consultar ingestão.";
-      setLoadError(message);
+      setLoadError(readApiError(error));
       return true;
     } finally {
       setIsLoading(false);
@@ -143,6 +161,102 @@ export default function AuditPage() {
   const currentStep = getPipelineStep(operationLevel);
   const isTerminal = TERMINAL_STATUSES.includes(operationLevel);
   const isSuccess = operationLevel === "AUTONOMOUS_SENTENCED";
+  const isBlocked = operationLevel === "KILLED" || operationLevel === "FAILED";
+  const sentenceConfirmedAt = ingestion?.sentence_confirmed_at;
+  const manualReviewCompletedAt = ingestion?.manual_review_completed_at;
+  const manualReviewApproved =
+    ingestion?.manual_review_verdict === "APPROVE_WITH_NOTES";
+  const canRequestManualAudit =
+    operationLevel === "AUTONOMOUS_SENTENCED" &&
+    !sentenceConfirmedAt &&
+    submittingAction === null;
+  const canCompleteManualReview =
+    operationLevel === "MANUAL_ASSISTED" &&
+    !manualReviewCompletedAt &&
+    submittingAction === null;
+  const canConfirmSentence =
+    (["AUTONOMOUS_SENTENCED", "PENDING_HUMAN_AUDIT"].includes(
+      operationLevel,
+    ) ||
+      (operationLevel === "MANUAL_ASSISTED" &&
+        Boolean(manualReviewCompletedAt) &&
+        manualReviewApproved)) &&
+    !sentenceConfirmedAt &&
+    submittingAction === null;
+
+  const handleManualAudit = async () => {
+    setSubmittingAction("manual-audit");
+    setActionError(null);
+    setActionMessage(null);
+
+    try {
+      const data = await requestManualAudit(ingestionId, {
+        expected_status: operationLevel,
+        idempotency_key: createIdempotencyKey(),
+      });
+      setActionMessage(
+        data.action_status === "idempotent_noop"
+          ? "Auditoria manual já estava solicitada."
+          : "Enviado para auditoria manual.",
+      );
+      await fetchIngestion();
+    } catch (error: unknown) {
+      setActionError(readApiError(error));
+    } finally {
+      setSubmittingAction(null);
+    }
+  };
+
+  const handleCompleteManualReview = async () => {
+    setSubmittingAction("complete-review");
+    setActionError(null);
+    setActionMessage(null);
+
+    try {
+      const data = await completeManualReview(ingestionId, {
+        reviewer_verdict: manualReviewVerdict,
+        notes: manualReviewNotes.trim() || null,
+        expected_status: operationLevel,
+        idempotency_key: createIdempotencyKey(),
+      });
+      setActionMessage(
+        data.action_status === "idempotent_noop"
+          ? "Revisão humana já estava concluída."
+          : manualReviewVerdict === "APPROVE_WITH_NOTES"
+            ? "Revisão concluída. Confirmação de sentença liberada."
+            : "Revisão concluída. Confirmação de sentença bloqueada pelo veredito.",
+      );
+      await fetchIngestion();
+    } catch (error: unknown) {
+      setActionError(readApiError(error));
+    } finally {
+      setSubmittingAction(null);
+    }
+  };
+
+  const handleConfirmSentence = async () => {
+    setSubmittingAction("confirm-sentence");
+    setActionError(null);
+    setActionMessage(null);
+
+    try {
+      const data = await confirmSentence(ingestionId, {
+        accepted: true,
+        expected_status: operationLevel,
+        idempotency_key: createIdempotencyKey(),
+      });
+      setActionMessage(
+        data.action_status === "idempotent_noop"
+          ? "Sentença já estava confirmada."
+          : "Sentença confirmada com trilha de auditoria.",
+      );
+      await fetchIngestion();
+    } catch (error: unknown) {
+      setActionError(readApiError(error));
+    } finally {
+      setSubmittingAction(null);
+    }
+  };
 
   const varianceRows: VarianceRow[] =
     ingestion?.validation_metrics?.step_1_inputs?.details?.numeric_errors?.map(
@@ -283,6 +397,25 @@ export default function AuditPage() {
         {/* ── Financial Dashboard (appears when polars data arrives) */}
         {polars && (
           <>
+            <section className="border-b border-zinc-800 px-8 py-5">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-mono mb-2">
+                Sentença
+              </p>
+              <h2 className="text-xl font-mono text-zinc-100">
+                Sentença de Capital V7
+              </h2>
+              <p className="mt-1 text-xs text-zinc-500">
+                Resultado final calculado pelo Diamond Core e preservado na
+                trilha de auditoria.
+              </p>
+            </section>
+
+            <section className="border-b border-zinc-800 px-8 py-4">
+              <h2 className="text-sm uppercase tracking-[0.2em] text-emerald-400 font-mono">
+                Números Diamond Core
+              </h2>
+            </section>
+
             <div className="grid grid-cols-5 gap-px bg-zinc-800 border-b border-zinc-800">
               {/* NPV */}
               <div className="bg-zinc-950 p-6 text-center">
@@ -379,7 +512,7 @@ export default function AuditPage() {
             <div className="p-8">
               <div className="mb-6">
                 <h2 className="text-sm uppercase tracking-[0.2em] text-cyan-400 font-mono mb-1">
-                  IA — Dados Extraídos
+                  Evidências IA
                 </h2>
                 <p className="text-xs text-zinc-600">
                   Payload estruturado pelo motor agêntico
@@ -415,7 +548,7 @@ export default function AuditPage() {
             <div className="p-8">
               <div className="mb-6">
                 <h2 className="text-sm uppercase tracking-[0.2em] text-amber-400 font-mono mb-1">
-                  V6 — Histórico Golden
+                  Calibração Golden
                 </h2>
                 <p className="text-xs text-zinc-600">
                   Referência validada do dataset calibrado
@@ -507,6 +640,161 @@ export default function AuditPage() {
           </div>
         )}
 
+        {isTerminal && (
+          <section className="grid grid-cols-2 divide-x divide-zinc-800 border-t border-zinc-800 pb-24">
+            <div className="p-8">
+              <div className="mb-6">
+                <h2 className="text-sm uppercase tracking-[0.2em] text-rose-400 font-mono mb-1">
+                  Revisão Humana
+                </h2>
+                <p className="text-xs text-zinc-600">
+                  Veredito operacional antes do fechamento manual assistido
+                </p>
+              </div>
+
+              {operationLevel === "MANUAL_ASSISTED" ? (
+                <div className="space-y-4">
+                  {manualReviewCompletedAt ? (
+                    <div className="border border-zinc-800 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-mono">
+                        Revisão concluída
+                      </p>
+                      <p className="mt-2 text-sm font-mono text-zinc-200">
+                        {ingestion?.manual_review_verdict?.replace(/_/g, " ") ??
+                          "Sem veredito"}
+                      </p>
+                      {ingestion?.manual_review_notes && (
+                        <p className="mt-3 text-sm text-zinc-400">
+                          {ingestion.manual_review_notes}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <label className="block">
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono mb-2">
+                          Veredito
+                        </span>
+                        <select
+                          aria-label="Veredito da revisão"
+                          className="w-full bg-zinc-950 border border-zinc-800 px-4 py-3 text-sm font-mono text-zinc-200"
+                          value={manualReviewVerdict}
+                          onChange={(event) =>
+                            setManualReviewVerdict(
+                              event.target.value as ManualReviewVerdict,
+                            )
+                          }
+                          disabled={submittingAction !== null || isBlocked}
+                        >
+                          <option value="APPROVE_WITH_NOTES">
+                            Aprovar com notas
+                          </option>
+                          <option value="REJECT">Rejeitar</option>
+                          <option value="REQUEST_REUPLOAD">
+                            Solicitar reenvio
+                          </option>
+                        </select>
+                      </label>
+
+                      <label className="block">
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono mb-2">
+                          Notas
+                        </span>
+                        <textarea
+                          aria-label="Notas da revisão"
+                          className="min-h-32 w-full resize-y bg-zinc-950 border border-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-700"
+                          placeholder="Registre a justificativa do veredito humano."
+                          value={manualReviewNotes}
+                          onChange={(event) =>
+                            setManualReviewNotes(event.target.value)
+                          }
+                          disabled={submittingAction !== null || isBlocked}
+                        />
+                      </label>
+
+                      <button
+                        className="
+                          px-8 py-3 text-xs font-mono uppercase tracking-[0.2em]
+                          bg-rose-950 text-rose-300 border border-rose-800
+                          hover:bg-rose-900 transition-colors
+                          disabled:opacity-40 disabled:cursor-not-allowed
+                        "
+                        disabled={!canCompleteManualReview}
+                        onClick={handleCompleteManualReview}
+                      >
+                        {submittingAction === "complete-review"
+                          ? "Concluindo..."
+                          : "Concluir Revisao"}
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : isBlocked ? (
+                <div className="border border-red-900 bg-red-950/20 p-4 text-sm text-red-300">
+                  Ações bloqueadas para ingestões encerradas como{" "}
+                  {operationLevel.replace(/_/g, " ")}.
+                </div>
+              ) : (
+                <div className="border border-zinc-800 p-4 text-sm text-zinc-500">
+                  Esta sentença não exige revisão manual obrigatória.
+                </div>
+              )}
+            </div>
+
+            <div className="p-8">
+              <div className="mb-6">
+                <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-300 font-mono mb-1">
+                  Trilha de Auditoria
+                </h2>
+                <p className="text-xs text-zinc-600">
+                  Eventos persistidos para confirmação e revisão
+                </p>
+              </div>
+
+              <div className="space-y-3 text-xs font-mono">
+                {ingestion?.created_at && (
+                  <div className="flex justify-between border-b border-zinc-900 pb-2">
+                    <span className="text-zinc-600">Criada</span>
+                    <span className="text-zinc-400">{ingestion.created_at}</span>
+                  </div>
+                )}
+                {ingestion?.manual_audit_requested_at && (
+                  <div className="flex justify-between border-b border-zinc-900 pb-2">
+                    <span className="text-zinc-600">Auditoria solicitada</span>
+                    <span className="text-zinc-400">
+                      {ingestion.manual_audit_requested_at}
+                    </span>
+                  </div>
+                )}
+                {manualReviewCompletedAt && (
+                  <div className="flex justify-between border-b border-zinc-900 pb-2">
+                    <span className="text-zinc-600">Revisão concluída</span>
+                    <span className="text-zinc-400">
+                      {manualReviewCompletedAt}
+                    </span>
+                  </div>
+                )}
+                {sentenceConfirmedAt && (
+                  <div className="flex justify-between border-b border-zinc-900 pb-2">
+                    <span className="text-zinc-600">Sentença confirmada</span>
+                    <span className="text-zinc-400">
+                      {sentenceConfirmedAt}
+                    </span>
+                  </div>
+                )}
+                {!ingestion?.created_at &&
+                  !ingestion?.manual_audit_requested_at &&
+                  !manualReviewCompletedAt &&
+                  !sentenceConfirmedAt && (
+                    <div className="border border-zinc-800 p-4 text-sm text-zinc-600">
+                      Nenhum evento auditável disponível.
+                    </div>
+                  )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ── Action Bar ──────────────────────────────────────────── */}
         <div className="fixed bottom-0 left-0 right-0 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur px-8 py-4 flex items-center justify-between no-print">
           <div className="flex items-center gap-4">
@@ -520,6 +808,20 @@ export default function AuditPage() {
                 Units: {polars.total_units ?? "—"}
               </span>
             )}
+            {sentenceConfirmedAt && (
+              <span className="text-xs font-mono text-emerald-500">
+                Sentença confirmada
+              </span>
+            )}
+            {(actionMessage || actionError) && (
+              <span
+                className={`text-xs font-mono ${
+                  actionError ? "text-red-400" : "text-emerald-400"
+                }`}
+              >
+                {actionError || actionMessage}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -528,12 +830,14 @@ export default function AuditPage() {
                 px-8 py-3 text-xs font-mono uppercase tracking-[0.2em]
                 bg-rose-950 text-rose-400 border border-rose-800
                 hover:bg-rose-900 transition-colors
+                disabled:opacity-40 disabled:cursor-not-allowed
               "
-              onClick={() => {
-                alert("Enviado para auditoria manual");
-              }}
+              disabled={!canRequestManualAudit}
+              onClick={handleManualAudit}
             >
-              Auditoria Manual
+              {submittingAction === "manual-audit"
+                ? "Enviando..."
+                : "Auditoria Manual"}
             </button>
 
             <button
@@ -541,6 +845,7 @@ export default function AuditPage() {
                 px-8 py-3 text-xs font-mono uppercase tracking-[0.2em]
                 bg-zinc-800 text-zinc-300 border border-zinc-700
                 hover:bg-zinc-700 transition-colors
+                disabled:opacity-40 disabled:cursor-not-allowed
               "
               disabled={!isTerminal}
               onClick={() => window.print()}
@@ -553,13 +858,16 @@ export default function AuditPage() {
                 px-8 py-3 text-xs font-mono uppercase tracking-[0.2em]
                 bg-emerald-600 text-white
                 hover:bg-emerald-500 transition-colors
+                disabled:opacity-40 disabled:cursor-not-allowed
               "
-              disabled={operationLevel === "KILLED" || !isTerminal}
-              onClick={() => {
-                alert("Projeto sentenciado — VPL registrado");
-              }}
+              disabled={!canConfirmSentence}
+              onClick={handleConfirmSentence}
             >
-              Confirmar Sentença
+              {submittingAction === "confirm-sentence"
+                ? "Confirmando..."
+                : sentenceConfirmedAt
+                  ? "Sentença Confirmada"
+                  : "Confirmar Sentença"}
             </button>
           </div>
         </div>

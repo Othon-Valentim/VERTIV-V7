@@ -34,6 +34,7 @@ test.describe("V7 Upload -> Audit (mocked)", () => {
         status,
         contentType: "application/json",
         body: JSON.stringify({
+          id: ingestionId,
           ingestion_id: ingestionId,
           ...body,
         }),
@@ -129,6 +130,7 @@ test.describe("V7 Upload -> Audit (mocked)", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
+          id: ingestionId,
           ingestion_id: ingestionId,
           ...terminalAuditBody,
         }),
@@ -147,5 +149,230 @@ test.describe("V7 Upload -> Audit (mocked)", () => {
     await page.waitForTimeout(1200);
 
     expect(getCalls).toBe(callsAfterFirstWindow);
+  });
+
+  test("requests manual audit from terminal audit view", async ({ page }) => {
+    const ingestionId = "ing-manual-action-123";
+    let body = { ...terminalAuditBody };
+    let actionCalls = 0;
+
+    await page.route(`**/api/v7/ingestion/${ingestionId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: ingestionId,
+          ingestion_id: ingestionId,
+          ...body,
+        }),
+      });
+    });
+
+    await page.route(
+      `**/api/v7/ingestion/${ingestionId}/manual-audit`,
+      async (route) => {
+        actionCalls += 1;
+        body = { ...body, status: "PENDING_HUMAN_AUDIT" };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ingestion_id: ingestionId,
+            action: "REQUEST_MANUAL_AUDIT",
+            action_status: "applied",
+            previous_status: "AUTONOMOUS_SENTENCED",
+            current_status: "PENDING_HUMAN_AUDIT",
+            audit_event_id: "evt-1",
+          }),
+        });
+      },
+    );
+
+    await page.goto(`/dashboard/audit/${ingestionId}`);
+
+    await expect(page.getByText("PROJETO VIÁVEL — TIR > WACC (GOLDEN RULE)")).toBeVisible();
+    await page.getByRole("button", { name: "Auditoria Manual" }).click();
+
+    await expect(page.getByText("Enviado para auditoria manual.", { exact: true })).toBeVisible();
+    await expect(page.getByText("PENDING HUMAN AUDIT")).toBeVisible();
+    expect(actionCalls).toBe(1);
+  });
+
+  test("confirms sentence from terminal audit view", async ({ page }) => {
+    const ingestionId = "ing-confirm-action-123";
+    let body = { ...terminalAuditBody };
+    let actionCalls = 0;
+
+    await page.route(`**/api/v7/ingestion/${ingestionId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: ingestionId,
+          ingestion_id: ingestionId,
+          ...body,
+        }),
+      });
+    });
+
+    await page.route(
+      `**/api/v7/ingestion/${ingestionId}/confirm-sentence`,
+      async (route) => {
+        actionCalls += 1;
+        body = {
+          ...body,
+          sentence_confirmed_at: "2026-05-03T12:00:00Z",
+          sentence_confirmed_by: "user-1",
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ingestion_id: ingestionId,
+            action: "CONFIRM_SENTENCE",
+            action_status: "applied",
+            previous_status: "AUTONOMOUS_SENTENCED",
+            current_status: "AUTONOMOUS_SENTENCED",
+            sentence_confirmed_at: "2026-05-03T12:00:00Z",
+            sentence_confirmed_by: "user-1",
+            audit_event_id: "evt-2",
+          }),
+        });
+      },
+    );
+
+    await page.goto(`/dashboard/audit/${ingestionId}`);
+
+    await expect(page.getByText("PROJETO VIÁVEL — TIR > WACC (GOLDEN RULE)")).toBeVisible();
+    await page.getByRole("button", { name: "Confirmar Sentença" }).click();
+
+    await expect(page.getByText("Sentença confirmada com trilha de auditoria.", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sentença Confirmada" })).toBeDisabled();
+    expect(actionCalls).toBe(1);
+  });
+
+  test("shows manual-assisted review panel and enables confirmation after approval", async ({
+    page,
+  }) => {
+    const ingestionId = "ing-manual-assisted-123";
+    let body = {
+      ...terminalAuditBody,
+      status: "MANUAL_ASSISTED",
+      manual_review_completed_at: null,
+      manual_review_verdict: null,
+    };
+    let completeCalls = 0;
+
+    await page.route(`**/api/v7/ingestion/${ingestionId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: ingestionId,
+          ingestion_id: ingestionId,
+          ...body,
+        }),
+      });
+    });
+
+    await page.route(
+      `**/api/v7/ingestion/${ingestionId}/complete-manual-review`,
+      async (route) => {
+        completeCalls += 1;
+        body = {
+          ...body,
+          manual_review_completed_at: "2026-05-03T13:00:00Z",
+          manual_review_completed_by: "user-1",
+          manual_review_verdict: "APPROVE_WITH_NOTES",
+          manual_review_notes: "Premissas revisadas.",
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ingestion_id: ingestionId,
+            action: "COMPLETE_MANUAL_REVIEW",
+            action_status: "applied",
+            previous_status: "MANUAL_ASSISTED",
+            current_status: "MANUAL_ASSISTED",
+            manual_review_completed_at: "2026-05-03T13:00:00Z",
+            manual_review_completed_by: "user-1",
+            manual_review_verdict: "APPROVE_WITH_NOTES",
+            audit_event_id: "evt-3",
+          }),
+        });
+      },
+    );
+
+    await page.goto(`/dashboard/audit/${ingestionId}`);
+
+    await expect(page.getByText("Revisão Humana")).toBeVisible();
+    await expect(page.getByLabel("Notas da revisão")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Confirmar Sentença" })).toBeDisabled();
+
+    await page.getByLabel("Notas da revisão").fill("Premissas revisadas.");
+    await page.getByRole("button", { name: "Concluir Revisao" }).click();
+
+    await expect(
+      page.getByText("Revisão concluída. Confirmação de sentença liberada.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Confirmar Sentença" })).toBeEnabled();
+    expect(completeCalls).toBe(1);
+  });
+
+  for (const status of ["KILLED", "FAILED"]) {
+    test(`${status} disables audit action buttons`, async ({ page }) => {
+      const ingestionId = `ing-${status.toLowerCase()}-123`;
+
+      await mockAuditResponse(page, ingestionId, {
+        ...terminalAuditBody,
+        status,
+        kill_reasons: status === "KILLED" ? ["Corte por regra de risco."] : [],
+      });
+
+      await page.goto(`/dashboard/audit/${ingestionId}`);
+
+      await expect(page.getByText(status)).toBeVisible();
+      await expect(page.getByRole("button", { name: "Auditoria Manual" })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Confirmar Sentença" })).toBeDisabled();
+      await expect(page.getByText("Ações bloqueadas", { exact: false })).toBeVisible();
+    });
+  }
+
+  test("keeps sentence confirmation idempotent once confirmed", async ({ page }) => {
+    const ingestionId = "ing-already-confirmed-123";
+    let confirmCalls = 0;
+
+    await mockAuditResponse(page, ingestionId, {
+      ...terminalAuditBody,
+      sentence_confirmed_at: "2026-05-03T12:00:00Z",
+      sentence_confirmed_by: "user-1",
+    });
+
+    await page.route(
+      `**/api/v7/ingestion/${ingestionId}/confirm-sentence`,
+      async (route) => {
+        confirmCalls += 1;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ingestion_id: ingestionId,
+            action: "CONFIRM_SENTENCE",
+            action_status: "idempotent_noop",
+            previous_status: "AUTONOMOUS_SENTENCED",
+            current_status: "AUTONOMOUS_SENTENCED",
+            sentence_confirmed_at: "2026-05-03T12:00:00Z",
+          }),
+        });
+      },
+    );
+
+    await page.goto(`/dashboard/audit/${ingestionId}`);
+
+    await expect(page.getByRole("button", { name: "Sentença Confirmada" })).toBeDisabled();
+    expect(confirmCalls).toBe(0);
   });
 });
