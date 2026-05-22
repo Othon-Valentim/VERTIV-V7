@@ -83,6 +83,11 @@ Retorna o estado completo da ingestao do usuario autenticado. O acesso e limitad
   "validation_metrics": {},
   "manual_audit_requested_at": null,
   "manual_audit_requested_by": null,
+  "manual_review_completed_at": null,
+  "manual_review_completed_by": null,
+  "manual_review_verdict": null,
+  "manual_review_notes": null,
+  "manual_review_corrected_payload": null,
   "sentence_confirmed_at": null,
   "sentence_confirmed_by": null,
   "sentence_confirmation_notes": null,
@@ -159,6 +164,80 @@ Body:
 | `422` | Body invalido |
 | `500` | Falha interna ao registrar acao |
 
+## POST /api/v7/ingestion/{ingestion_id}/complete-manual-review
+
+Conclui a revisao humana obrigatoria de uma ingestao `MANUAL_ASSISTED`. A acao e auditavel, nao chama microservico e nao sobrescreve `llm_extracted_payload`; correcoes humanas opcionais ficam em `manual_review_corrected_payload`, enquanto o evento de auditoria guarda apenas hash, chaves e tamanho do payload corrigido.
+
+### Request `CompleteManualReviewRequest`
+
+Headers opcionais:
+
+```http
+Idempotency-Key: client-generated-key
+```
+
+Body:
+
+```json
+{
+  "reviewer_verdict": "APPROVE_WITH_NOTES",
+  "notes": "Premissas revisadas; area corrigida em payload separado.",
+  "corrected_payload": {
+    "area_sqm": 1200
+  },
+  "expected_status": "MANUAL_ASSISTED",
+  "idempotency_key": "client-generated-key"
+}
+```
+
+| Campo | Tipo | Obrigatorio | Descricao |
+| --- | --- | --- | --- |
+| `reviewer_verdict` | enum | Sim | `APPROVE_WITH_NOTES`, `REJECT` ou `REQUEST_REUPLOAD`. |
+| `notes` | string | Nao | Recomendado para justificar a decisao humana. |
+| `corrected_payload` | object | Nao | Correcoes humanas preservadas na ingestao, sem substituir a extracao LLM; o evento registra somente resumo redigido. |
+| `expected_status` | string | Nao | Guarda otimista contra mudanca concorrente de status. |
+| `idempotency_key` | string | Nao | Alternativa ao header `Idempotency-Key`. |
+
+### Regras de estado
+
+| Status atual | Resultado |
+| --- | --- |
+| `MANUAL_ASSISTED` sem revisao concluida | Grava metadados de conclusao e evento `COMPLETE_MANUAL_REVIEW` |
+| `MANUAL_ASSISTED` ja revisado | Retorna `idempotent_noop` e preserva os metadados existentes |
+| Qualquer outro status | Bloqueia com `409` |
+
+`APPROVE_WITH_NOTES` libera uma confirmacao posterior de sentenca. `REJECT` e `REQUEST_REUPLOAD` mantem `CONFIRM_SENTENCE` bloqueada.
+
+### Resposta 200 `IngestionActionResponse`
+
+```json
+{
+  "ingestion_id": "8b179d3f-7f69-4b73-91f6-580c0f9fd92b",
+  "action": "COMPLETE_MANUAL_REVIEW",
+  "action_status": "applied",
+  "previous_status": "MANUAL_ASSISTED",
+  "current_status": "MANUAL_ASSISTED",
+  "audit_event_id": "3f8a2f75-9501-4e83-97b4-66d1d8e3b4bd",
+  "manual_audit_requested_at": null,
+  "manual_review_completed_at": "2026-05-22T00:00:00Z",
+  "manual_review_completed_by": "user-id",
+  "manual_review_verdict": "APPROVE_WITH_NOTES",
+  "sentence_confirmed_at": null,
+  "sentence_confirmed_by": null,
+  "updated_at": "2026-05-22T00:00:00Z"
+}
+```
+
+### Erros
+
+| Codigo | Quando ocorre |
+| ---: | --- |
+| `401` | JWT ausente ou invalido |
+| `404` | Ingestao inexistente ou de outro usuario |
+| `409` | `expected_status` diverge ou status nao permite revisao manual |
+| `422` | Body invalido ou `reviewer_verdict` fora do enum |
+| `500` | Falha interna ao concluir revisao |
+
 ## POST /api/v7/ingestion/{ingestion_id}/confirm-sentence
 
 Confirma a Sentenca de Capital. A acao nao muda o status de negocio; ela grava metadados de confirmacao e evento auditavel.
@@ -189,8 +268,9 @@ Body:
 | --- | --- |
 | `AUTONOMOUS_SENTENCED` | Confirma se `polars_calculations` existir |
 | `PENDING_HUMAN_AUDIT` | Confirma se `polars_calculations` existir |
+| `MANUAL_ASSISTED` com `manual_review_verdict=APPROVE_WITH_NOTES` | Confirma se `manual_review_completed_at` e `polars_calculations` existirem |
 | Ja confirmado | Retorna `idempotent_noop` |
-| `MANUAL_ASSISTED` | Bloqueia com `409` nesta etapa do fechamento |
+| `MANUAL_ASSISTED` sem revisao aprovada | Bloqueia com `409` |
 | `UPLOADING` ou `INGESTING` | Bloqueia com `409` |
 | `KILLED` ou `FAILED` | Bloqueia com `409` |
 
