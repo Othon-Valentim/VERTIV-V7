@@ -16,6 +16,7 @@ import sys
 import traceback
 import zipfile
 import io
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -23,6 +24,10 @@ from pydantic import ValidationError
 from supabase import Client
 
 logger = logging.getLogger("vertiv.worker.orchestrator")
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 # Resolve backend path for engine imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -317,11 +322,14 @@ class IngestionOrchestrator:
                     "FAILED",
                     kill_reasons=kill_reasons,
                     validation_metrics={"schema_validation_error": str(validation_error)},
+                    last_error=str(validation_error),
+                    processing_finished_at=_now_iso(),
                 )
                 return {
                     "ingestion_id": ingestion_id,
                     "status": "FAILED",
                     "error": "LLM extraction failed V7 schema validation",
+                    "kill_reasons": kill_reasons,
                 }
 
             # ── Step 4: Polars Calculation (Diamond Core) ──
@@ -380,6 +388,7 @@ class IngestionOrchestrator:
                 kill_reasons=kill_reasons if kill_reasons else None,
                 accuracy_score=accuracy_score,
                 validation_metrics=validation_metrics if validation_metrics else None,
+                processing_finished_at=_now_iso(),
             )
 
             result = {
@@ -405,9 +414,12 @@ class IngestionOrchestrator:
                 ingestion_id,
                 "FAILED",
                 kill_reasons=[f"Pipeline error: {str(e)}"],
+                last_error=str(e),
+                processing_finished_at=_now_iso(),
             )
             return {
                 "ingestion_id": ingestion_id,
                 "status": "FAILED",
                 "error": str(e),
+                "kill_reasons": [f"Pipeline error: {str(e)}"],
             }
