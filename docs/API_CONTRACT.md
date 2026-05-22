@@ -1,301 +1,198 @@
-# VERTIV v6.1.0-SINGULARITY API Contract
+# VERTIV V7.0 API Contract
 
-## Overview
+Este contrato descreve a superficie publica do VERTIV V7.0: ingestao de Data Room, consulta de sentenca e acoes humanas auditaveis.
 
-This document defines the API contract for the VERTIV Real Estate Viability Analysis Platform.
+**Base local:** `http://localhost:8000`
+**Autenticacao:** JWT Bearer Token do Supabase para rotas protegidas
+**Fluxo oficial:** ZIP Data Room -> IA extrai -> Diamond Core/Polars calcula -> GoldenEvaluator compara -> Sentenca de Capital
 
-**Base URL:** `https://api.vertiv.tech`
-**Version:** 6.1.0-SINGULARITY
-**Authentication:** JWT Bearer Token (Supabase)
+## Autenticacao
 
----
-
-## Authentication
-
-All protected endpoints require a valid JWT token in the Authorization header:
-
-```
-Authorization: Bearer <your-jwt-token>
+```http
+Authorization: Bearer <jwt>
 ```
 
-Tokens are obtained via Supabase Auth (login/register flow).
+## Health
 
----
-
-## Rate Limits
-
-| Scope | Limit |
-|-------|-------|
-| Global | 60 requests/minute, 10 requests/second |
-| Simulations | 30 requests/minute |
-
-Rate limit headers are included in responses:
-- `X-RateLimit-Remaining-Minute`
-- `X-RateLimit-Remaining-Second`
-- `X-RateLimit-Limit-Minute`
-- `X-RateLimit-Limit-Second`
-
----
-
-## Endpoints
-
-### Health Check
-
-```
+```http
 GET /health
 ```
 
-**Authentication:** None required
+Resposta:
 
-**Response:**
 ```json
 {
   "status": "ok",
-  "version": "6.1.0-SINGULARITY",
-  "mode": "GLOBAL_EDITION",
-  "security": "enabled"
+  "version": "7.0.0",
+  "product": "VERTIV V7.0",
+  "mode": "TRIBUNAL_AGENTICO_RISCO_IMOBILIARIO",
+  "security": "enabled",
+  "webmcp_enabled": false
 }
 ```
 
----
+## Upload de Data Room
 
-### User Info
-
+```http
+POST /api/v7/ingest
+Content-Type: multipart/form-data
 ```
-GET /me
+
+Campos:
+
+| Campo | Tipo | Obrigatorio | Descricao |
+| --- | --- | --- | --- |
+| `file` | `.zip` | Sim | Data Room do ativo |
+| `legacy_simulation_id` | string | Nao | UUID historico para calibracao GoldenEvaluator |
+
+Resposta `202`:
+
+```json
+{
+  "ingestion_id": "uuid",
+  "status": "UPLOADING",
+  "message": "Data room aceito. Aguardando processamento agentico."
+}
 ```
 
-**Authentication:** Required
+Erros comuns:
 
-**Response:**
+| Codigo | Motivo |
+| ---: | --- |
+| `400` | Arquivo nao e ZIP ou ZIP invalido |
+| `401` | JWT ausente/invalido |
+| `413` | Arquivo ou conteudo descompactado excede limites |
+| `500` | Falha interna ao gravar ou registrar ingestao |
+
+## Consultar Ingestao
+
+```http
+GET /api/v7/ingestion/{ingestion_id}
+```
+
+Resposta:
+
 ```json
 {
   "id": "uuid",
-  "email": "user@example.com",
-  "role": "authenticated",
-  "authenticated": true
+  "status": "AUTONOMOUS_SENTENCED",
+  "raw_storage_url": "data-rooms/user/id/data-room.zip",
+  "llm_extracted_payload": {},
+  "polars_calculations": {},
+  "kill_reasons": [],
+  "legacy_simulation_id": "uuid",
+  "accuracy_score": 0.91,
+  "validation_metrics": {},
+  "manual_audit_requested_at": null,
+  "manual_audit_requested_by": null,
+  "sentence_confirmed_at": null,
+  "sentence_confirmed_by": null,
+  "sentence_confirmation_notes": null,
+  "created_at": "2026-05-22T00:00:00Z",
+  "updated_at": "2026-05-22T00:00:00Z"
 }
 ```
 
----
+Estados permitidos:
 
-### Create Simulation
+- `UPLOADING`
+- `INGESTING`
+- `AUTONOMOUS_SENTENCED`
+- `PENDING_HUMAN_AUDIT`
+- `MANUAL_ASSISTED`
+- `KILLED`
+- `FAILED`
 
+## Solicitar Auditoria Humana
+
+```http
+POST /api/v7/ingestion/{ingestion_id}/manual-audit
+Content-Type: application/json
+Idempotency-Key: <opcional>
 ```
-POST /calculate/quick
-```
 
-**Authentication:** Required
-**Rate Limit:** 30/minute
+Request:
 
-**Request Body:**
 ```json
 {
-  "id": "project-id",
-  "name": "Project Name",
-  "is_mixed_use": false,
-  "separate_access_cores": true,
-  "fire_load_category": "Residencial",
-  "efficiency": 0.85,
-  "financial_input": {
-    "total_units": 100,
-    "sales_price_avg": 12000,
-    "construction_cost_total": 50000000,
-    "land_cost": 10000000,
-    "development_months": 36
-  },
-  "real_options": {
-    "land_value_current": 10000000,
-    "development_cost_forcing": 60000000,
-    "time_to_permit_years": 2.0,
-    "volatility": 0.20,
-    "risk_free_rate": 0.1375
-  },
-  "esg": {
-    "certification": "NONE",
-    "green_premium": 0,
-    "brown_discount": 0
-  }
+  "reason": "Revisar premissas de area e custo.",
+  "expected_status": "AUTONOMOUS_SENTENCED",
+  "idempotency_key": "client-key"
 }
 ```
 
-**Response (202 Accepted):**
+Resposta:
+
 ```json
 {
-  "simulation_id": "uuid",
-  "status": "PENDING",
-  "result": null
+  "ingestion_id": "uuid",
+  "action": "REQUEST_MANUAL_AUDIT",
+  "action_status": "applied",
+  "previous_status": "AUTONOMOUS_SENTENCED",
+  "current_status": "PENDING_HUMAN_AUDIT",
+  "audit_event_id": "uuid",
+  "manual_audit_requested_at": "2026-05-22T00:00:00Z",
+  "sentence_confirmed_at": null,
+  "sentence_confirmed_by": null,
+  "updated_at": "2026-05-22T00:00:00Z"
 }
 ```
 
----
+## Confirmar Sentenca
 
-### Get Simulation Status
-
+```http
+POST /api/v7/ingestion/{ingestion_id}/confirm-sentence
+Content-Type: application/json
+Idempotency-Key: <opcional>
 ```
-GET /simulation/{simulation_id}
-```
 
-**Authentication:** Required
+Request:
 
-**Response (Completed):**
 ```json
 {
-  "simulation_id": "uuid",
-  "status": "COMPLETED",
-  "result": {
-    "npv": 15000000.00,
-    "irr": 18.5,
-    "roe": 0.45,
-    "payback_months": 28,
-    "exposure_max": 35000000.00,
-    "esg_adjusted_npv": 15500000.00,
-    "real_option_land_value": 2500000.00
-  },
-  "error": null
+  "accepted": true,
+  "notes": "Sentenca revisada e aceita.",
+  "expected_status": "AUTONOMOUS_SENTENCED",
+  "decision_snapshot_hash": "sha256-opcional",
+  "idempotency_key": "client-key"
 }
 ```
 
-**Status Values:**
-- `PENDING` - Queued for processing
-- `PROCESSING` - Currently being calculated
-- `COMPLETED` - Results available
-- `FAILED` - Error occurred
+Resposta:
 
----
-
-### List Simulations
-
-```
-GET /simulations?limit=10&offset=0
-```
-
-**Authentication:** Required
-
-**Response:**
-```json
-[
-  {
-    "id": "uuid",
-    "name": "Project Alpha",
-    "status": "COMPLETED",
-    "created_at": "2025-12-17T10:00:00Z"
-  }
-]
-```
-
----
-
-### Recent Simulations
-
-```
-GET /simulations/recent?limit=5
-```
-
-**Authentication:** Required
-
-**Response:** Same as List Simulations
-
----
-
-## Error Responses
-
-### 401 Unauthorized
 ```json
 {
-  "detail": "Authentication required. Please provide a valid Bearer token."
+  "ingestion_id": "uuid",
+  "action": "CONFIRM_SENTENCE",
+  "action_status": "applied",
+  "previous_status": "AUTONOMOUS_SENTENCED",
+  "current_status": "AUTONOMOUS_SENTENCED",
+  "audit_event_id": "uuid",
+  "manual_audit_requested_at": null,
+  "sentence_confirmed_at": "2026-05-22T00:00:00Z",
+  "sentence_confirmed_by": "user-id",
+  "updated_at": "2026-05-22T00:00:00Z"
 }
 ```
 
-### 403 Forbidden
-```json
-{
-  "detail": "Access denied. Required role: admin"
-}
+Regras:
+
+- `accepted` deve ser `true`.
+- A sentenca precisa ter calculos Polars.
+- `KILLED` e `FAILED` nao permitem confirmacao.
+- `MANUAL_ASSISTED` ainda exige fluxo humano completo em task posterior.
+- Repeticoes com a mesma chave de idempotencia retornam `idempotent_noop`.
+
+## Catalogo B2B/WebMCP Experimental
+
+```http
+GET /api/v7/openapi/schemas
 ```
 
-### 404 Not Found
-```json
-{
-  "detail": "Simulation not found"
-}
-```
+Este endpoint e condicional. Ele so e registrado quando `WEBMCP_ENABLED=true`, porque fica no roteador experimental WebMCP. Com a flag desligada, que e o padrao V7.0, a rota nao deve estar disponivel.
 
-### 429 Too Many Requests
-```json
-{
-  "error": "Too Many Requests",
-  "message": "Rate limit exceeded. Please wait 30 seconds.",
-  "retry_after": 30,
-  "limit_type": "minute",
-  "requests_made": 60,
-  "requests_allowed": 60
-}
-```
+Quando habilitado, retorna schemas para integracoes B2B/WebMCP controladas. Ele nao faz parte do fluxo principal de ingestao, sentenca ou acao humana.
 
-### 500 Internal Server Error
-```json
-{
-  "detail": "Database Persistence Failed: connection error"
-}
-```
+## Legado/Compatibilidade
 
----
-
-## Data Models
-
-### ProjectTIV
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| id | string | Yes | Unique project identifier |
-| name | string | Yes | Project name |
-| is_mixed_use | boolean | No | IT-11 mixed-use flag |
-| separate_access_cores | boolean | No | IT-11 compliance |
-| fire_load_category | string | No | Fire safety category |
-| efficiency | float | No | Sellable/Total area ratio |
-| financial_input | P10FinancialInput | No | Financial parameters |
-| real_options | RealOptionsInput | No | Black-Scholes parameters |
-| esg | ESGAttributes | No | ESG certifications |
-
-### P10FinancialInput
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| total_units | integer | Yes | Number of units |
-| sales_price_avg | decimal | Yes | Average price per sqm |
-| construction_cost_total | decimal | Yes | Total construction cost |
-| land_cost | decimal | Yes | Land acquisition cost |
-| development_months | integer | Yes | Development timeline |
-
-### P10FinancialOutput
-
-| Field | Type | Description |
-|-------|------|-------------|
-| npv | decimal | Net Present Value |
-| irr | float | Internal Rate of Return (%) |
-| roe | float | Return on Equity (dynamic) |
-| payback_months | integer | Payback period (dynamic) |
-| exposure_max | decimal | Maximum cash exposure (dynamic) |
-| esg_adjusted_npv | decimal | NPV with ESG adjustments |
-| real_option_land_value | float | Black-Scholes land value |
-
----
-
-## Changelog
-
-### v6.1.0-SINGULARITY
-- Added JWT authentication to all protected endpoints
-- Implemented rate limiting (60/min global, 30/min simulations)
-- Dynamic ROE, Payback, and Max Exposure calculations
-- Security headers and CORS configuration
-
-### v6.0.0
-- Initial release
-- Basic simulation endpoints
-- Real Options calculation
-- ESG adjustments
-
----
-
-**Copyright 2025 VERTIV CAPITAL. All Rights Reserved.**
+Rotas como `/calculate/quick`, `/simulation/{id}` e `/simulations` podem existir para compatibilidade com simulacoes anteriores. Elas nao sao o fluxo principal V7.0 e nao substituem ingestao de Data Room.

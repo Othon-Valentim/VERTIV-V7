@@ -1,204 +1,104 @@
-# VERTIV v6.1.0 - Guia do Usuario
+# VERTIV V7.0 - Guia do Usuario
 
-## Bem-vindo ao VERTIV!
+O VERTIV V7.0 e um Tribunal Agentico de Risco Imobiliario. O operador envia um Data Room em ZIP, acompanha a ingestao, revisa evidencias e decide se confirma a Sentenca de Capital.
 
-O VERTIV e uma plataforma de analise de viabilidade imobiliaria que utiliza metodologia T.I.V. (Tese de Investimento Vertical) para avaliar oportunidades de investimento em empreendimentos imobiliarios.
+## 1. Acesso
 
-**Acesso:** https://vertiv.tech
+1. Acesse a aplicacao.
+2. Entre com sua conta Supabase/Auth.
+3. Abra o painel de upload ou auditoria conforme seu perfil operacional.
 
----
+## 2. Fluxo Principal
 
-## 1. Primeiros Passos
+```text
+ZIP Data Room -> IA extrai -> Diamond Core/Polars calcula -> GoldenEvaluator compara -> Sentenca de Capital
+```
 
-### 1.1 Criar Conta
+### 2.1 Preparar o Data Room
 
-1. Acesse https://vertiv.tech
-2. Clique em **"Entrar"** no canto superior direito
-3. Clique em **"Criar conta"**
-4. Preencha seu email e senha
-5. Verifique seu email e clique no link de confirmacao
-6. Pronto! Voce ja pode fazer login
+Crie um arquivo `.zip` com documentos do ativo. Inclua apenas arquivos necessarios para analise, como:
 
-### 1.2 Fazer Login
+- matricula, escritura ou documentos equivalentes;
+- estudo de massa ou premissas de area;
+- orcamento, custo ou premissas de construcao;
+- tabela comercial ou premissas de venda;
+- documentos ambientais, legais e restricoes conhecidas.
 
-1. Acesse https://vertiv.tech
-2. Clique em **"Entrar"**
-3. Digite seu email e senha
-4. Clique em **"Entrar"**
+### 2.2 Enviar o ZIP
 
----
+1. Abra o fluxo de upload do Data Room.
+2. Selecione um arquivo `.zip`.
+3. Opcionalmente informe um UUID de calibracao legado quando a analise deve ser comparada a uma simulacao historica.
+4. Envie o arquivo.
 
-## 2. Tela Inicial
+O sistema grava o ZIP no bucket privado `data-rooms` e cria uma ingestao com status `UPLOADING`.
 
-Apos o login, voce vera duas opcoes principais:
+### 2.3 Acompanhar a Ingestao
 
-| Opcao | Descricao |
-|-------|-----------|
-| **TIV Wizard** | Metodologia completa em 10 passos para analise de viabilidade |
-| **Real Options** | Calculadora de opcoes reais (Black-Scholes) para terrenos |
+Estados comuns:
 
----
+| Estado | O que significa |
+| --- | --- |
+| `UPLOADING` | Upload aceito e aguardando processamento |
+| `INGESTING` | Worker processando documentos |
+| `AUTONOMOUS_SENTENCED` | Sentenca automatica disponivel |
+| `PENDING_HUMAN_AUDIT` | Auditoria humana solicitada |
+| `MANUAL_ASSISTED` | Caso exige apoio humano antes do fechamento |
+| `KILLED` | Risco bloqueante identificado |
+| `FAILED` | Falha tecnica ou de extracao |
 
-## 3. TIV Wizard - Analise Completa
+## 3. Ler a Sentenca
 
-O TIV Wizard guia voce pelos 10 passos da metodologia de investimento vertical:
+A tela de auditoria apresenta:
 
-### Passo 1: P1 Garimpo & Ciclo
-- **Objetivo:** Screening inicial da oportunidade
-- **Entrada:** Localizacao, area do terreno, preco pedido
-- **Saida:** Score de atratividade (0-100) e fase do ciclo de mercado
+- Sentenca de Capital.
+- Numeros Diamond Core/Polars.
+- Evidencias extraidas pela IA.
+- Kill reasons, quando houver.
+- Comparacao GoldenEvaluator, quando houver calibracao.
+- Metadados de auditoria e confirmacao.
 
-### Passo 2: P2 Dinamica Economica
-- **Objetivo:** Avaliar indicadores macroeconomicos
-- **Dados ao vivo:** Taxa Selic, IPCA, INCC do Banco Central
-- **Saida:** Score de favorabilidade economica
+A IA extrai evidencias. A decisao financeira vem do Diamond Core.
 
-### Passo 3: P3 Area de Influencia
-- **Objetivo:** Mapear area de influencia do empreendimento
-- **Entrada:** Coordenadas ou endereco
-- **Saida:** Isocronas e dados demograficos
+## 4. Acoes Humanas
 
-### Passo 4: P4 Vocacao & Produto
-- **Objetivo:** Definir o melhor uso do terreno
-- **Analise:** Zoneamento, centralidade, densidade
-- **Saida:** Recomendacao de tipologia (Residencial, Comercial, Misto)
+### Solicitar auditoria manual
 
-### Passo 5: P5 Legal & Restricoes
-- **Objetivo:** Verificar impedimentos legais
-- **Checklist:** APP, Tombamento, Servidoes, Contaminacao
-- **Saida:** GO/NO-GO (Gate Binario)
+Use quando a sentenca automatica precisa de revisao humana. A acao muda o status para `PENDING_HUMAN_AUDIT` quando aplicavel e registra evento auditavel.
 
-### Passo 6: P6 Demanda Qualificada
-- **Objetivo:** Quantificar demanda potencial
-- **Funil:** Populacao → Familias → Renda compativel → Demanda efetiva
-- **Saida:** Numero de unidades absorviveis
+### Confirmar sentenca
 
-### Passo 7: P7 Oferta & Mercado
-- **Objetivo:** Analisar concorrencia
-- **Dados:** Lancamentos ativos, estoque, preco medio/m2
-- **Saida:** Benchmark de mercado
+Use quando a sentenca esta revisada e aceita. A confirmacao registra usuario, horario, notas e evento de auditoria.
 
-### Passo 8: P8 Absorcao (VSO)
-- **Objetivo:** Projetar velocidade de vendas
-- **Calculo:** Velocidade Sobre Oferta mensal
-- **Saida:** Meses para vender o empreendimento
+Nao confirme sentencas em estados `KILLED`, `FAILED`, `UPLOADING` ou `INGESTING`.
 
-### Passo 9: P9 Convalidacao 4:1
-- **Objetivo:** Validar equilibrio demanda/oferta
-- **Regra:** Demanda deve ser 4x maior que oferta
-- **Saida:** GO/NO-GO estrategico
+## 5. Dry Run Local
 
-### Passo 10: P10 Modelagem Financeira
-- **Objetivo:** Calcular viabilidade financeira
-- **Metricas:**
-  - NPV (Valor Presente Liquido)
-  - IRR (Taxa Interna de Retorno)
-  - ROE (Retorno sobre Patrimonio)
-  - Payback (Meses para recuperar investimento)
-  - Exposicao Maxima (Capital necessario)
-- **Bonus:** Valor de Opcoes Reais (Black-Scholes)
+Para demonstracao controlada, use:
 
----
+```bash
+USE_MOCK=1
+```
 
-## 4. Salvar e Gerenciar Analises
+Servicos esperados:
 
-### 4.1 Salvar Analise
-- No wizard, clique em **"Salvar"** a qualquer momento
-- De um nome para sua analise
-- A analise fica vinculada a sua conta
+| Servico | Porta |
+| --- | ---: |
+| Frontend | 3002 |
+| Backend | 8000 |
+| Worker | 8001 |
 
-### 4.2 Abrir Analise Existente
-- Clique em **"Minhas Analises"**
-- Selecione a analise desejada
-- Continue de onde parou
+## 6. WebMCP
 
-### 4.3 Nova Analise
-- Clique em **"Nova Analise"** para comecar do zero
+WebMCP e experimental em V7.0. Ele so deve aparecer quando as flags estiverem ativas:
 
----
+```bash
+WEBMCP_ENABLED=true
+NEXT_PUBLIC_WEBMCP_ENABLED=true
+```
 
-## 5. Dashboard Real Options
+Com as flags desligadas, o fluxo de Data Room continua funcionando normalmente.
 
-A calculadora de Opcoes Reais permite avaliar o valor de "esperar" antes de desenvolver um terreno.
+## 7. Legado/Compatibilidade
 
-### Parametros de Entrada:
-| Campo | Descricao | Exemplo |
-|-------|-----------|---------|
-| Valor Atual do Terreno | Quanto o terreno vale hoje | R$ 10.000.000 |
-| Custo de Desenvolvimento | Investimento total necessario | R$ 60.000.000 |
-| Tempo ate Aprovacao | Anos ate obter licencas | 2 anos |
-| Volatilidade | Incerteza do mercado (%) | 20% |
-| Taxa Livre de Risco | Selic atual | 13.75% |
-
-### Resultado:
-- **Valor da Opcao:** Quanto vale a opcionalidade de esperar
-- **Cone de Incerteza:** Visualizacao grafica dos cenarios
-
----
-
-## 6. Portfolio (Gestao de Projetos)
-
-Acesse `/dashboard/portfolio` para ver todos os seus projetos:
-
-- **Lista de Projetos:** Todas as analises salvas
-- **Status:** Pendente, Em analise, Concluido
-- **Metricas:** NPV, IRR, ROE de cada projeto
-- **Filtros:** Ordene por data, nome ou performance
-
----
-
-## 7. Exportar Relatorios
-
-### Deal Memo (PDF)
-1. Abra a analise desejada
-2. Clique em **"Exportar PDF"**
-3. Um relatorio profissional sera gerado
-4. Use para apresentar ao Comite de Investimentos
-
----
-
-## 8. Dicas de Uso
-
-### Para Analises Rapidas:
-- Use o P1 Garimpo para filtrar oportunidades rapidamente
-- Score > 75 = Prosseguir com analise completa
-- Score < 50 = Descartar oportunidade
-
-### Para Analises Completas:
-- Preencha todos os 10 passos
-- Use dados reais de mercado
-- Compare com benchmarks da regiao
-
-### Para Decisoes de Timing:
-- Use Real Options para terrenos em estoque
-- Se o valor da opcao > 10% do terreno, considere esperar
-
----
-
-## 9. Suporte
-
-**Problemas tecnicos:** Contate o administrador do sistema
-
-**Duvidas metodologicas:** Consulte o WHITE_PAPER.md
-
-**API para integracao:** Consulte API_CONTRACT.md
-
----
-
-## 10. Glossario
-
-| Termo | Significado |
-|-------|-------------|
-| **TIV** | Tese de Investimento Vertical |
-| **NPV** | Net Present Value (Valor Presente Liquido) |
-| **IRR** | Internal Rate of Return (Taxa Interna de Retorno) |
-| **ROE** | Return on Equity (Retorno sobre Patrimonio) |
-| **VSO** | Velocidade Sobre Oferta |
-| **CA** | Coeficiente de Aproveitamento |
-| **IT-11** | Instrucao Tecnica 11 (Bombeiros - MG) |
-| **Real Options** | Opcoes Reais (teoria financeira) |
-
----
-
-**VERTIV v6.1.0-SINGULARITY**
-*"Nao prevemos o futuro. Estruturamos o presente para lucrar com a volatilidade do futuro."*
+O fluxo manual antigo e referencias V6 podem existir como legado de calibracao, testes historicos ou rotas de compatibilidade. Para operacao V7.0, use o fluxo de Data Room ZIP e a tela de auditoria/sentenca.

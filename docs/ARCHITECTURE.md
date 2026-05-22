@@ -1,81 +1,80 @@
-# VERTIV™ Architecture Blueprint 🏛️📐
+# VERTIV V7.0 Architecture
 
-**System Version**: 6.0  
-**Pattern**: Modular Monolith on Cloud Run  
+**Produto:** Tribunal Agentico de Risco Imobiliario
+**Padrao:** monolito modular com frontend, FastAPI, worker Python, Supabase e Diamond Core/Polars
+**Fluxo oficial:** ZIP Data Room -> IA extrai -> Diamond Core/Polars calcula -> GoldenEvaluator compara -> Sentenca de Capital
 
----
-
-## 1. High-Level Diagram
+## Visao Geral
 
 ```mermaid
 graph TD
-    User((Executive User)) -->|HTTPS| CDN[Global CDN]
-    CDN -->|Next.js 14| FE[Frontend App]
-    
-    subgraph "The Diamond Core Cloud"
-        FE -->|REST API| BE[Backend API]
-        BE -->|Async Task| Queue[Cloud Tasks]
-        Queue -->|Job Payload| WRK[Worker Engine]
-        
-        WRK -->|Data Write| DB[(Supabase SQL)]
-        BE -->|Data Read| DB
-        
-        BE -->|Analyze Thesis| AI[LLM Service]
-    end
-    
-    subgraph "Persistence Layer"
-        DB -->|RLS Policy| Auth[Supabase Auth]
-    end
+    User["Operador"] --> FE["Frontend Next.js 14"]
+    FE -->|"POST /api/v7/ingest"| BE["Backend FastAPI"]
+    BE -->|"Storage privado"| ST["Supabase bucket data-rooms"]
+    BE -->|"linha UPLOADING"| DB["Supabase Postgres + RLS"]
+    WK["Worker Python"] -->|"polling/claim"| DB
+    WK -->|"download ZIP"| ST
+    WK -->|"extracao estruturada"| LLM["IA ou Mock LLM"]
+    WK -->|"payload normalizado"| DC["Diamond Core / Polars"]
+    DC --> GE["GoldenEvaluator"]
+    WK -->|"status, calculos, kill reasons"| DB
+    FE -->|"GET /api/v7/ingestion/{id}"| BE
+    FE --> AUD["Auditoria e Sentenca"]
 ```
 
----
+## Fronteiras de Responsabilidade
 
-## 2. Component Specifications
+### Frontend (`apps/frontend`)
 
-### 2.1 Backend (`apps/backend`)
-*   **Role**: The Orchestrator.
-*   **Tech**: FastAPI (Python 3.11).
-*   **Responsibilities**:
-    *   Auth Validation.
-    *   Job Dispatch (to Worker).
-    *   Data Retrieval (from DB).
-    *   AI Prompt Construction.
+- Upload do Data Room ZIP.
+- Leitura do status de ingestao.
+- Exibicao de evidencias da IA, calculos Diamond Core, calibracao Golden e Sentenca de Capital.
+- Acoes humanas: solicitar auditoria manual e confirmar sentenca.
+- WebMCP apenas quando `NEXT_PUBLIC_WEBMCP_ENABLED=true`.
 
-### 2.2 Worker (`apps/worker`)
-*   **Role**: The Quant.
-*   **Tech**: Python 3.11 + Polars.
-*   **Responsibilities**:
-    *   `CashFlowEngine`: Vectorized DCF calculation.
-    *   `RealOptionsEngine`: Stochastic path simulation.
-    *   Payload Sanitization (handling `NaN`/`Infinity`).
+### Backend (`apps/backend`)
 
-### 2.3 Frontend (`apps/frontend`)
-*   **Role**: The Interface.
-*   **Tech**: Next.js 14 + Shadcn UI.
-*   **Key Features**:
-    *   **Wizard**: Multi-step state machine for data entry.
-    *   **Dashboard**: Real-time visualization using Recharts.
-    *   **PDF Generation**: Client-side rendering for "Deal Memos".
+- Autenticacao JWT via Supabase.
+- Validacao de upload ZIP.
+- Gravacao no bucket `data-rooms`.
+- Persistencia da ingestao em `data_room_ingestions`.
+- API V7 de status e acoes humanas.
+- Registro condicional de WebMCP quando `WEBMCP_ENABLED=true`.
+- Rotas legadas de simulacao podem permanecer para compatibilidade.
 
----
+### Worker (`apps/worker`)
 
-## 3. Security Model
+- Consome ingestoes pendentes.
+- Baixa o ZIP do Storage.
+- Extrai texto e dados com mock ou provider LLM.
+- Executa Diamond Core/Polars.
+- Aciona GoldenEvaluator quando ha calibracao historica.
+- Atualiza status, metricas, kill reasons e payloads auditaveis.
 
-### 3.1 Data Sovereignty (RLS)
-We use Postgres **Row Level Security** to enforce isolation.
-*   Policy: `CREATE POLICY "Select Own" ON simulations USING (auth.uid() = user_id);`
-*   Effect: A user cannot physically query another user's deal, even if they hack the frontend.
+### Diamond Core
 
-### 3.2 Secrets Management
-*   Secrets (DB Keys, API Keys) are injected at runtime via **Google Cloud Secret Manager**.
-*   No secrets are stored in the git repository.
+O Diamond Core e a camada deterministica de calculo. A IA nao substitui as regras financeiras: ela transforma documentos em dados estruturados para que o core calcule.
 
----
+## Persistencia e Seguranca
 
-## 4. Scalability Strategy
+- Supabase Auth fornece identidade do usuario.
+- Postgres usa Row Level Security para isolar ingestoes por `user_id`.
+- Storage usa o bucket privado `data-rooms`.
+- O backend aceita cliente Supabase autenticado por JWT quando precisa preservar compatibilidade com RLS.
+- Esta task nao altera RLS nem o Diamond Core.
 
-*   **Stateless**: All containers are stateless.
-*   **Auto-Scaling**: Cloud Run scales from 0 to N instances based on request load.
-*   **Queue-Based**: Heavy math is offloaded to a queue, ensuring the API never blocks.
+## Estados de Ingestao
 
-> *"Built to endure. Designed to scale."*
+| Estado | Significado |
+| --- | --- |
+| `UPLOADING` | Upload aceito; aguardando worker |
+| `INGESTING` | Worker processando documentos |
+| `AUTONOMOUS_SENTENCED` | Sentenca automatica disponivel |
+| `PENDING_HUMAN_AUDIT` | Operador pediu auditoria humana |
+| `MANUAL_ASSISTED` | Ingestao exige apoio humano |
+| `KILLED` | Regras de risco bloquearam continuidade |
+| `FAILED` | Falha tecnica ou de processamento |
+
+## Legado/Compatibilidade
+
+V6 e o fluxo de entrada manual permanecem apenas como legado de calibracao, testes historicos e compatibilidade de rotas. O fluxo principal V7.0 e Data Room ZIP com auditoria e sentenca.

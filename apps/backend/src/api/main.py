@@ -1,6 +1,6 @@
 """
-VERTIV v6.0 API - Global Edition
-Real Estate Viability Analysis Platform
+VERTIV V7.0 API
+Tribunal Agentico de Risco Imobiliario
 
 Security Features:
 - JWT Authentication via Supabase
@@ -65,9 +65,12 @@ ALLOWED_ORIGINS = os.getenv(
 ).split(",")
 
 app = FastAPI(
-    title="VERTIV v6.0 API",
-    version="7.0.0-SINGULARITY",
-    description="Global Edition - Real Estate Viability Analysis Platform with Bank-Grade Security",
+    title="VERTIV V7.0 API",
+    version="7.0.0",
+    description=(
+        "Tribunal Agentico de Risco Imobiliario: Data Room ZIP, IA, "
+        "Diamond Core/Polars, GoldenEvaluator e Sentenca de Capital."
+    ),
 )
 
 if ENV == "development":
@@ -113,9 +116,11 @@ async def health_check():
     """Health check endpoint for load balancers and monitoring."""
     return {
         "status": "ok",
-        "version": "6.1.0-SINGULARITY",
-        "mode": "GLOBAL_EDITION",
+        "version": "7.0.0",
+        "product": "VERTIV V7.0",
+        "mode": "TRIBUNAL_AGENTICO_RISCO_IMOBILIARIO",
         "security": "enabled",
+        "webmcp_enabled": WEBMCP_ENABLED,
     }
 
 

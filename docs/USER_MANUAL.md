@@ -1,56 +1,71 @@
-# 🦅 VERTIV™ v6.0 | Global Operator Manual
+# VERTIV V7.0 - Manual Operacional
 
-**Standard**: Institutional Grade / Banking Audit Ready  
-**Identity**: Advanced Real Estate Quantum Modeling
+**Identidade:** Tribunal Agentico de Risco Imobiliario
+**Operacao padrao:** Data Room ZIP, extracao por IA, calculo Diamond Core/Polars, calibracao GoldenEvaluator e Sentenca de Capital auditavel.
 
----
+## 1. Posicionamento
 
-## 1. STRATEGIC POSITIONING
-VERTIV™ v6.0 represents the convergence of high-frequency data (BCB/Live Search) with industrial-grade financial modeling (Polars). This manual is designed for decision-makers who require precision, speed, and auditability.
+VERTIV V7.0 nao e uma calculadora manual. Ele e um fluxo de decisao para risco imobiliario no qual documentos viram evidencias, evidencias viram premissas estruturadas e o Diamond Core calcula a sentenca.
 
----
+## 2. Preparacao Operacional
 
-## 2. THE QUANTUM ENGINE (P1-P10)
-Navigating the TIV Methodology through the **Command Wizard**.
+Antes de operar:
 
-### 2.1 P1 Garimpo (Screening)
-*   **Engine**: Polars Vectorized Throughput.
-*   **Logic**: 4-Phase Market Cycle Analysis (ONDA 1).
-*   **Execution**: Insert land area and asking price. The system cross-references regional benchmarks instantly.
-*   **Verdict**: 
-    *   🟢 **GO**: Low Friction / High Alpha.
-    *   🟡 **CAUTION**: Structural complexities identified.
-    *   🔴 **NO-GO**: Financial feasibility below threshold.
+- confirme que o backend esta em `http://localhost:8000`;
+- confirme que o frontend esta em `http://localhost:3002`;
+- confirme que o worker esta ativo;
+- confirme que o bucket Supabase `data-rooms` existe e e privado;
+- use `USE_MOCK=1` para dry run local.
 
-### 2.2 Sovereign ESG (RICS Global)
-*   **Standard**: RICS Adjusted NPV.
-*   **Impact**: Certificates (LEED/WELL) directly optimize the **WACC (Discount Rate)**. 
-*   **Result**: Sustainable assets gain a "Greenium" premium, increasing the terminal asset value.
+## 3. Procedimento de Analise
 
-### 2.3 Regulatory Firewall (IT-11)
-*   **Integrity**: Automatic compliance check for Fire Safety (Minas Gerais).
-*   **Automatic Penalty**: 15% efficiency reduction for non-compliant mixed-use projects (Circulation Duplication).
+1. Receba o Data Room do ativo em ZIP.
+2. Envie o ZIP pelo frontend.
+3. Aguarde a ingestao sair de `UPLOADING`/`INGESTING`.
+4. Abra a tela de auditoria.
+5. Revise evidencias da IA e premissas extraidas.
+6. Revise calculos Diamond Core/Polars.
+7. Revise comparacao GoldenEvaluator quando houver `legacy_simulation_id`.
+8. Solicite auditoria manual ou confirme a Sentenca de Capital.
 
----
+## 4. Criterios de Decisao
 
-## 3. ANALYZER COMMAND CENTER
-Deep analytics for post-processing validation.
+### Sentenca automatica
 
-*   **AI Insight Card**: Real-time generative analysis (GPT-4o) acting as a Shadow Analyst.
-*   **BSM Real Options**: Valuation of land banking using Black-Scholes-Merton logic (MIT Standard).
-*   **J-Curve Visualization**: Tracking the net cash outflow vs. inflow timeline.
+Uma ingestao em `AUTONOMOUS_SENTENCED` possui calculos suficientes para revisao operacional. O operador ainda deve conferir evidencias e premissas antes de confirmar.
 
----
+### Auditoria humana
 
-## 4. EXECUTIVE REPORTING (PDF EXPORT)
-1.  Open any active Simulation Dashboard.
-2.  Click **"Generate Memo"** (Top Right).
-3.  The system compiles a 10-page **Investment Memorandum** for immediate presentation to the Investment Committee or Board.
+Use `REQUEST_MANUAL_AUDIT` quando:
 
----
+- a extracao da IA deixou duvidas;
+- documentos criticos parecem ausentes;
+- as premissas financeiras precisam de revisao;
+- a calibracao GoldenEvaluator diverge de forma relevante.
 
-## 5. TECHNICAL ASSISTANCE
-The VERTIV support swarm is available 24/7 for Enterprise users.
-📩 **Contact**: `ops@vertiv.tech`
+### Estados terminais bloqueados
 
-> *"Precision is the only luxury in high-stakes modeling."*
+`KILLED` e `FAILED` nao devem ser confirmados. O operador deve analisar `kill_reasons`, erro registrado ou solicitar novo Data Room quando necessario.
+
+## 5. Responsabilidade do Diamond Core
+
+O Diamond Core e responsavel por calculo financeiro, risco, opcoes reais e metricas. A IA nao decide NPV, IRR, payback ou viabilidade; ela apenas extrai e normaliza insumos.
+
+## 6. Auditoria
+
+Toda acao humana relevante deve manter:
+
+- usuario;
+- data/hora;
+- status anterior;
+- status atual;
+- notas ou motivo;
+- chave de idempotencia quando fornecida.
+
+## 7. WebMCP
+
+WebMCP e experimental em V7.0 e fica desligado por padrao. Use somente em ambiente controlado e com as flags `WEBMCP_ENABLED` e `NEXT_PUBLIC_WEBMCP_ENABLED`.
+
+## 8. Legado/Compatibilidade
+
+O material V6 e o fluxo manual anterior permanecem como historico de calibracao e compatibilidade. Eles nao definem a operacao padrao V7.0.
