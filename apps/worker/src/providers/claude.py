@@ -1,6 +1,8 @@
 """
-VERTIV V7 — Claude Provider Stub
-Anthropic Claude 4.6 Sonnet — 1M context, premium fallback.
+VERTIV V7 — Claude Provider placeholder.
+
+Claude is intentionally not part of the V7.0 production fallback path until a
+real Anthropic SDK implementation is added and covered by tests.
 """
 
 import logging
@@ -10,7 +12,9 @@ logger = logging.getLogger("vertiv.providers.claude")
 
 
 class ClaudeProvider:
-    """Anthropic Claude 4.6 Sonnet provider for Data Room extraction."""
+    """Non-production placeholder for future Anthropic extraction."""
+
+    is_stub = True
 
     @property
     def name(self) -> str:
@@ -29,14 +33,9 @@ class ClaudeProvider:
         return 25.00  # USD per million output tokens
 
     async def health_check(self) -> bool:
-        """Check Claude API availability."""
-        try:
-            import os
-
-            return bool(os.getenv("ANTHROPIC_API_KEY"))
-        except Exception as e:
-            logger.error(f"Claude health check failed: {e}")
-            return False
+        """Claude is not production-ready in V7.0."""
+        logger.info("ClaudeProvider is disabled for V7.0 production routing.")
+        return False
 
     async def extract_structured_data(
         self,
@@ -53,15 +52,7 @@ class ClaudeProvider:
             f"schema keys: {list(extraction_schema.keys())}"
         )
 
-        # TODO: Implement actual Claude API call
-        # import anthropic
-        # client = anthropic.Anthropic()
-        # response = client.messages.create(
-        #     model="claude-sonnet-4-20250514",
-        #     messages=[...],
-        #     tools=[{"type": "custom", "input_schema": extraction_schema}]
-        # )
-        raise NotImplementedError(
-            "Claude extraction not yet implemented. "
-            "Wire up anthropic SDK with tool_use structured output."
+        raise RuntimeError(
+            "ClaudeProvider is a non-production placeholder in V7.0. "
+            "Configure Gemini for USE_MOCK=0 or implement Anthropic SDK support."
         )

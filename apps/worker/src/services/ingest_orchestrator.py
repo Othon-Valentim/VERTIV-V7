@@ -19,6 +19,7 @@ import io
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
+from pydantic import ValidationError
 from supabase import Client
 
 logger = logging.getLogger("vertiv.worker.orchestrator")
@@ -288,12 +289,40 @@ class IngestionOrchestrator:
                 )
             else:
                 from ..providers.router import create_default_router
+                from ..schemas.v7_extraction import V7ExtractionSchema
 
                 router = create_default_router()
-                extraction_schema = {"type": "vertiv_data_room", "version": "7.0"}
+                extraction_schema = V7ExtractionSchema.model_json_schema()
                 extracted_data = await router.extract(
                     raw_text.encode("utf-8"), extraction_schema
                 )
+
+            validation_metrics: Dict[str, Any] = {}
+            try:
+                from ..schemas.v7_extraction import validate_v7_extraction
+
+                validated_extraction, normalization_logs = validate_v7_extraction(
+                    extracted_data
+                )
+                extracted_data = validated_extraction.to_engine_payload()
+                if normalization_logs:
+                    validation_metrics["normalization_logs"] = normalization_logs
+            except (TypeError, ValueError, ValidationError) as validation_error:
+                kill_reasons = [
+                    "LLM extraction failed V7 schema validation",
+                    str(validation_error),
+                ]
+                self._update_status(
+                    ingestion_id,
+                    "FAILED",
+                    kill_reasons=kill_reasons,
+                    validation_metrics={"schema_validation_error": str(validation_error)},
+                )
+                return {
+                    "ingestion_id": ingestion_id,
+                    "status": "FAILED",
+                    "error": "LLM extraction failed V7 schema validation",
+                }
 
             # ── Step 4: Polars Calculation (Diamond Core) ──
             logger.info(f"[{ingestion_id[:8]}] Step 4: Diamond Core calculation")
@@ -301,7 +330,6 @@ class IngestionOrchestrator:
 
             # ── Step 5: GoldenEvaluator (if calibration mode) ──
             accuracy_score = 100.0
-            validation_metrics: Dict[str, Any] = {}
             if legacy_simulation_id:
                 logger.info(
                     f"[{ingestion_id[:8]}] Step 5: Golden evaluation vs {legacy_simulation_id}"
@@ -309,6 +337,8 @@ class IngestionOrchestrator:
                 accuracy_score, validation_metrics = self._run_golden_evaluation(
                     extracted_data, legacy_simulation_id
                 )
+                if normalization_logs:
+                    validation_metrics["normalization_logs"] = normalization_logs
                 validation_metrics["accuracy_score"] = accuracy_score
 
             # ── Step 6: Triage ──
@@ -337,6 +367,7 @@ class IngestionOrchestrator:
                 accuracy_score=accuracy_score,
                 has_blocking_errors=has_blocking,
                 kill_reasons=kill_reasons if kill_reasons else None,
+                normalization_logs=normalization_logs if normalization_logs else None,
             )
 
             # ── Step 7: Update DB with full results ──

@@ -1,12 +1,12 @@
 """
 VERTIV V7 — Ingestion Router
-Resilient multi-provider routing with automatic fallback.
+Resilient provider routing with explicit production fallbacks.
 
 Strategy:
 1. If ZIP size > 1M tokens estimate → Force Gemini (only one with 2M context)
 2. Try primary (Gemini, cheapest) first
-3. If primary fails → silent fallback to Claude
-4. If both fail → raise critical exception
+3. If primary fails → use a configured real fallback only
+4. If no real fallback exists → raise a clear production error
 """
 
 import logging
@@ -27,7 +27,7 @@ class IngestionRouter:
     def __init__(
         self,
         primary: LLMProvider,
-        fallback: LLMProvider,
+        fallback: Optional[LLMProvider] = None,
     ) -> None:
         self.primary = primary
         self.fallback = fallback
@@ -83,16 +83,28 @@ class IngestionRouter:
 
         # Strategy 1: Force Gemini for large payloads
         if self._should_force_gemini(content_size):
-            return await self._try_provider(
-                self.primary, raw_content, extraction_schema, fallback_allowed=False
-            )
+            try:
+                return await self._try_provider(
+                    self.primary, raw_content, extraction_schema, fallback_allowed=False
+                )
+            except Exception as primary_error:
+                raise RuntimeError(
+                    f"Large payload requires gemini-compatible provider only. "
+                    f"{self.primary.name} failed: {primary_error}"
+                ) from primary_error
 
-        # Strategy 2: Try primary (Gemini), fallback to Claude
+        # Strategy 2: Try primary (Gemini), fallback only to a real provider
         try:
             return await self._try_provider(
                 self.primary, raw_content, extraction_schema, fallback_allowed=True
             )
         except Exception as primary_error:
+            if self.fallback is None or getattr(self.fallback, "is_stub", False):
+                raise RuntimeError(
+                    "No production fallback provider configured for V7.0. "
+                    f"Primary provider ({self.primary.name}) failed: {primary_error}"
+                ) from primary_error
+
             logger.warning(
                 f"Primary provider ({self.primary.name}) failed: {primary_error}. "
                 f"Falling back to {self.fallback.name}."
@@ -142,7 +154,7 @@ def create_default_router() -> IngestionRouter:
     Create the default router with environment-driven provider selection.
 
     USE_MOCK=1 → MockLLMProvider (golden data, zero tokens, dry run)
-    USE_MOCK=0 → Gemini primary + Claude fallback (production)
+    USE_MOCK=0 → Gemini only (Claude stub is excluded from production V7.0)
     """
     import os
 
@@ -156,13 +168,12 @@ def create_default_router() -> IngestionRouter:
             "Zero LLM tokens will be consumed."
         )
         mock = MockLLMProvider()
-        return IngestionRouter(primary=mock, fallback=mock)
+        return IngestionRouter(primary=mock, fallback=None)
 
     from .gemini import GeminiProvider
-    from .claude import ClaudeProvider
 
-    logger.info("🚀 Production mode → Gemini (primary) + Claude (fallback)")
+    logger.info("🚀 Production mode → Gemini only (Claude fallback disabled in V7.0)")
     return IngestionRouter(
         primary=GeminiProvider(),
-        fallback=ClaudeProvider(),
+        fallback=None,
     )
