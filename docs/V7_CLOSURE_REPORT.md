@@ -20,6 +20,16 @@ frontend fecha a sentenca e a revisao humana.
 - Gate V7 separado de specs legados.
 - WebMCP fechado como experimental, autenticado, desligado por padrao e com catalogo limitado.
 - Runbook operacional V7 criado.
+- Migration base de auditoria humana versionada no fechamento.
+
+## Ordem Oficial das Migrations
+
+Para banco limpo, aplicar nesta ordem:
+
+1. `20260219_data_room_ingestions.sql`
+2. `20260503_ingestion_action_audit.sql`
+3. `20260522_ingestion_queue_hardening.sql`
+4. `20260522_manual_review_completion.sql`
 
 ## Commits do Fechamento
 
@@ -32,6 +42,8 @@ frontend fecha a sentenca e a revisao humana.
 - `8bd4ee3` feat: finish V7 audit and manual review UI
 - `11d510a` test: define green V7 release gate
 - `e0f39ee` docs: lock WebMCP scope for V7
+- `25b5e54` docs: add V7 release runbook and closure report
+- `e178932` db: add V7 ingestion action audit migration
 
 ## Validacao Executada
 
