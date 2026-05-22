@@ -38,6 +38,7 @@ Na seção "Environment Variables" antes de clicar Deploy, adicione:
 | `NEXT_PUBLIC_SUPABASE_URL` | `<NEXT_PUBLIC_SUPABASE_URL>` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `<NEXT_PUBLIC_SUPABASE_ANON_KEY>` |
 | `NEXT_PUBLIC_DOMAIN` | `<NEXT_PUBLIC_DOMAIN>` |
+| `NEXT_PUBLIC_WEBMCP_ENABLED` | `false` |
 
 > Use apenas placeholders neste arquivo. Valores reais devem ser configurados em Vercel Environment Variables ou em arquivos `.env` locais e nunca commitados.
 
@@ -92,6 +93,9 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
 
 vercel env add NEXT_PUBLIC_DOMAIN production
 # Cole: <NEXT_PUBLIC_DOMAIN>
+
+vercel env add NEXT_PUBLIC_WEBMCP_ENABLED production
+# Cole: false
 ```
 
 ### Passo 6 — Redeploy com variáveis
@@ -153,8 +157,9 @@ Após o deploy estar live:
 2. Faça login
 3. Vá para Dashboard → Upload
 4. Faça upload de um arquivo ZIP de teste
-5. Confirme que o pipeline de simulação inicia
+5. Confirme que a ingestão V7 cria um `ingestion_id`
 6. Verifique no Network tab do DevTools que as chamadas vão para `<API_BASE_URL>`
+7. Abra `/dashboard/audit/<ingestion_id>` e confirme que a sentença ou estado de auditoria aparece
 
 ### Teste rápido via curl:
 ```bash
@@ -168,8 +173,18 @@ curl <API_BASE_URL>/health
 curl -H "Origin: https://app.<NEXT_PUBLIC_DOMAIN>" \
      -H "Access-Control-Request-Method: POST" \
      -X OPTIONS \
-     <API_BASE_URL>/api/v1/simulations/upload
+     <API_BASE_URL>/api/v7/ingest
 ```
+
+## Gate antes de promover
+
+Execute localmente, com o frontend rodando em `http://localhost:3000` para o E2E:
+
+```bash
+npm run test:v7
+```
+
+O gate V7 cobre backend de ingestão/revisão/WebMCP, worker de extração/fila e o fluxo Playwright mockado de upload até auditoria.
 
 ---
 
