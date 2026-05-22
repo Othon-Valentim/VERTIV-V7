@@ -19,7 +19,7 @@ router = APIRouter()
 
 def _catalog_response(protocol: str) -> dict:
     return {
-        "version": "7.0.0-SINGULARITY",
+        "version": "7.0.0-experimental",
         "protocol": protocol,
         "tools": get_webmcp_tool_catalog(),
         "context_policy": {

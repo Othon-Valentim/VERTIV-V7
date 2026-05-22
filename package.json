@@ -25,7 +25,7 @@
     "test:e2e:report": "playwright show-report tests/e2e/reports",
     "test:e2e:codegen": "playwright codegen http://localhost:3000",
     "test:v7": "npm run test:v7:backend && npm run test:v7:worker && npm run test:v7:e2e",
-    "test:v7:backend": "cd apps/backend && pytest tests/test_ingestion_actions.py tests/test_ingestion_action_endpoints.py -q",
+    "test:v7:backend": "cd apps/backend && pytest tests/test_ingestion_actions.py tests/test_ingestion_action_endpoints.py tests/test_webmcp_scope.py -q",
     "test:v7:worker": "cd apps/worker && pytest tests/test_v7_extraction_schema.py tests/test_provider_router.py tests/test_ingest_orchestrator_validation.py tests/test_worker_daemon_queue.py -q",
     "test:v7:e2e": "playwright test tests/e2e/v7_upload_audit_mock.spec.ts --grep @v7 --project=chromium",
     "verify:v7": "npm run test:v7",

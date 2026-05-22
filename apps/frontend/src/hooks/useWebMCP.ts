@@ -57,12 +57,12 @@ interface UseWebMCPOptions {
 
 const STEP_TOOL_MAP: Record<string, string[]> = {
   // Financial view → simulation tools
-  P10: ["simulate_what_if", "approve_capital_sentence"],
+  P10: ["simulate_what_if"],
   P3: ["simulate_what_if"],
   // Legal view → legal tools
-  P5: ["override_legal_flag", "highlight_pdf_evidence", "register_kill_reason"],
-  // General audit view → all except approval
-  AUDIT: ["simulate_what_if", "highlight_pdf_evidence", "register_kill_reason"],
+  P5: ["highlight_pdf_evidence"],
+  // General audit view → supported experimental V7.0 tools only
+  AUDIT: ["simulate_what_if", "highlight_pdf_evidence"],
   // Default → all tools
   ALL: [],
 };

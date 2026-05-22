@@ -303,7 +303,7 @@ def _build_tool_catalog() -> List[WebMCPToolDef]:
 
 def get_webmcp_tool_catalog() -> List[Dict[str, Any]]:
     """
-    Returns the complete WebMCP tool catalog as a list of dicts
+    Returns the supported WebMCP V7.0 tool catalog as a list of dicts
     ready for JSON serialization and navigator.modelContext.registerTool().
     """
     catalog = [
@@ -318,6 +318,9 @@ def get_webmcp_tool_catalog() -> List[Dict[str, Any]]:
 
 def get_webmcp_tool_by_name(name: str) -> Optional[Dict[str, Any]]:
     """Retrieve a single tool definition by name."""
+    if name not in SUPPORTED_TOOL_NAMES:
+        return None
+
     catalog = _build_tool_catalog()
     for tool in catalog:
         if tool.name == name:
