@@ -1,140 +1,96 @@
-# VERTIV E2E Tests
+# VERTIV V7 E2E Tests
 
-## Overview
+## Papel da Suíte
 
-End-to-end tests for VERTIV v6.0 critical flows using Playwright.
+Os testes Playwright agora ficam separados em dois grupos:
 
-## Prerequisites
+- **Gate V7**: valida o fluxo de fechamento do produto atual: upload de ZIP Data Room, abertura da tela de auditoria, sentença, solicitação de auditoria manual, revisão humana e confirmação idempotente.
+- **Legado**: preserva specs históricos do wizard/V6 para compatibilidade e investigação, mas eles não bloqueiam o fechamento V7.
+
+O gate oficial de release é:
+
+```bash
+npm run test:v7
+```
+
+Esse comando roda backend, worker e o spec E2E V7 mockado. Para o E2E, o frontend precisa estar ativo em `http://localhost:3000`.
+
+## Pré-requisitos
 
 - Node.js 18+
 - npm 9+
-- Frontend running on `http://localhost:3000`
-- Backend running on `http://localhost:8000`
+- Dependências instaladas com `npm install`
+- Navegadores Playwright instalados com `npm run playwright:install`
+- Frontend local ativo para `test:v7:e2e`: `npm run dev:frontend`
 
-## Installation
+## Comandos V7
 
 ```bash
-# Install root dependencies
-npm install
+# Gate completo de fechamento V7
+npm run test:v7
 
-# Install Playwright browsers
-npm run playwright:install
+# Apenas backend V7
+npm run test:v7:backend
+
+# Apenas worker V7
+npm run test:v7:worker
+
+# Apenas E2E V7
+npm run test:v7:e2e
+
+# Alias de verificação final
+npm run verify:v7
 ```
 
-## Running Tests
+## Comandos Gerais e Legados
 
-### All Tests
 ```bash
+# Todos os specs Playwright, incluindo legado
 npm run test:e2e
-```
 
-### With UI Mode (Interactive)
-```bash
+# Somente specs legados, excluindo os marcados com @v7
+npm run test:e2e:legacy
+
+# Modo interativo
 npm run test:e2e:ui
-```
 
-### Headed Mode (See Browser)
-```bash
+# Browser visível
 npm run test:e2e:headed
-```
 
-### Debug Mode
-```bash
+# Debug
 npm run test:e2e:debug
-```
 
-### Specific Browser
-```bash
-# Chrome only
-npm run test:e2e:chrome
-
-# Firefox only
-npm run test:e2e:firefox
-
-# Safari only
-npm run test:e2e:webkit
-
-# Mobile browsers
-npm run test:e2e:mobile
-```
-
-### Generate Test Code
-```bash
-npm run test:e2e:codegen
-```
-
-### View Report
-```bash
+# Relatório HTML
 npm run test:e2e:report
 ```
 
-## Test Structure
+## Estrutura
 
-```
+```text
 tests/e2e/
-  +-- test_critical_flow.spec.ts  # Main test file
-  +-- screenshots/                 # Test screenshots
-  +-- reports/                     # HTML reports
-  +-- test-results/               # Artifacts
+  v7_upload_audit_mock.spec.ts        # Gate V7 mockado e determinístico
+  test_*.spec.ts                      # Specs legados do wizard/V6
+  customer_journey_demo.spec.ts       # Jornada histórica legada
+  debug_login.spec.ts                 # Debug legado de autenticação
+  reports/                            # Relatórios Playwright gerados
+  test-results/                       # Artefatos de execução
 ```
 
-## Critical Flow Tests
+## Variáveis
 
-1. **Login Page Access** - Verify login form renders
-2. **User Login** - Test authentication flow
-3. **Simulations List** - View portfolio dashboard
-4. **Simulation Details** - Open specific simulation
-5. **Quick Calculation** - Execute via wizard
-6. **API Validation** - Backend health checks
-7. **Full E2E Flow** - Complete user journey
+| Variável | Default | Uso |
+| --- | --- | --- |
+| `BASE_URL` | `http://localhost:3000` | URL do frontend para navegação Playwright |
+| `API_URL` | `http://localhost:8000` | URL esperada do backend em specs legados |
+| `CI` | `false` | Ativa retries e modo headless em CI |
 
-## Environment Variables
+## Critério de Gate V7
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BASE_URL` | http://localhost:3000 | Frontend URL |
-| `API_URL` | http://localhost:8000 | Backend API URL |
-| `TEST_EMAIL` | test@example.com | Test user email |
-| `TEST_PASSWORD` | password123 | Test user password |
-| `CI` | false | CI mode flag |
+O fechamento V7 considera verde quando:
 
-## Screenshots
+- `npm run test:v7:backend` passa.
+- `npm run test:v7:worker` passa.
+- `npm run test:v7:e2e` passa com o frontend rodando.
+- Falhas em specs legados não aparecem no `test:v7`.
 
-Screenshots are saved to `tests/e2e/screenshots/` with timestamps:
-- `01_login_page_*.png`
-- `02_after_login_*.png`
-- `03_simulations_list_*.png`
-- `04_simulation_details_*.png`
-- `05_wizard_calculation_*.png`
-- `07_final_wizard_state_*.png`
-
-## CI/CD Integration
-
-For GitHub Actions, add to workflow:
-
-```yaml
-- name: Install Playwright
-  run: npx playwright install --with-deps
-
-- name: Run E2E Tests
-  run: npm run test:e2e
-  env:
-    CI: true
-    BASE_URL: http://localhost:3000
-    API_URL: http://localhost:8000
-```
-
-## Troubleshooting
-
-### Tests fail with timeout
-1. Ensure frontend is running: `npm run dev:frontend`
-2. Ensure backend is running: `npm run dev:backend`
-3. Increase timeout in `playwright.config.ts`
-
-### Login fails
-1. Check if test user exists in Supabase
-2. Verify credentials in environment variables
-
-### Screenshots not taken
-1. Check `tests/e2e/screenshots/` directory exists
-2. Verify write permissions
+Os specs legados não foram apagados porque ainda documentam fluxos históricos e podem ajudar em regressões futuras, mas o produto V7 não depende deles para aceite.

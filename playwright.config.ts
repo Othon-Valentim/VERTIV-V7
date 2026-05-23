@@ -1,7 +1,7 @@
 /**
- * VERTIV v6.0 - Playwright Configuration
+ * VERTIV V7.0 - Playwright Configuration
  *
- * E2E Testing Configuration for Critical Flows
+ * E2E testing configuration for V7 release gates and legacy flows.
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -63,8 +63,8 @@ export default defineConfig({
     // Capture screenshot on failure
     screenshot: 'only-on-failure',
 
-    // Capture video
-    video: 'on',
+    // Capture video only for failed flows to keep V7 gate artifacts small.
+    video: 'retain-on-failure',
 
     // Viewport size
     viewport: { width: 1920, height: 1080 },

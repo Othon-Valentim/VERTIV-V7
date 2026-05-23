@@ -1,6 +1,6 @@
 """
-VERTIV v6.0 API - Global Edition
-Real Estate Viability Analysis Platform
+VERTIV V7.0 API
+Tribunal Agentico de Risco Imobiliario
 
 Security Features:
 - JWT Authentication via Supabase
@@ -32,7 +32,7 @@ from src.domain.schemas import (
 )
 from src.engine.cashflow import CashFlowEngine
 from src.engine.real_options import RealOptionsEngine
-from src.api.routes import p1, analysis
+from src.api.routes import p1, analysis, ingest, webmcp
 from src.services.task_queue import TaskDispatcher
 from src.services.search_engine import SearchEngine
 
@@ -54,23 +54,40 @@ import traceback
 
 # Environment
 ENV = os.getenv("ENV", "development")
+WEBMCP_ENABLED = os.getenv("WEBMCP_ENABLED", "false").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS", "https://vertiv.tech,http://localhost:3000"
+    "ALLOWED_ORIGINS", "https://vertiv.tech,https://app.vertiv.tech"
 ).split(",")
 
 app = FastAPI(
-    title="VERTIV v6.0 API",
-    version="7.0.0-SINGULARITY",
-    description="Global Edition - Real Estate Viability Analysis Platform with Bank-Grade Security",
+    title="VERTIV V7.0 API",
+    version="7.0.0",
+    description=(
+        "Tribunal Agentico de Risco Imobiliario: Data Room ZIP, IA, "
+        "Diamond Core/Polars, GoldenEvaluator e Sentenca de Capital."
+    ),
 )
 
-# CORS - Locked down for production
+if ENV == "development":
+    for origin in (
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+    ):
+        if origin not in ALLOWED_ORIGINS:
+            ALLOWED_ORIGINS.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS if ENV == "production" else ["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-WebMCP-Origin"],
 )
 
 # Rate Limiting Middleware
@@ -84,6 +101,9 @@ app.add_middleware(
 app.include_router(p1.router)
 app.include_router(analysis.router)
 # V7: Wizard removed — Data Room ingestion replaces manual entry
+app.include_router(ingest.router, prefix="/api/v7", tags=["V7 Ingestion"])
+if WEBMCP_ENABLED:
+    app.include_router(webmcp.router, prefix="/api/v7", tags=["WebMCP"])
 
 
 # ============================================================================
@@ -96,9 +116,11 @@ async def health_check():
     """Health check endpoint for load balancers and monitoring."""
     return {
         "status": "ok",
-        "version": "6.1.0-SINGULARITY",
-        "mode": "GLOBAL_EDITION",
+        "version": "7.0.0",
+        "product": "VERTIV V7.0",
+        "mode": "TRIBUNAL_AGENTICO_RISCO_IMOBILIARIO",
         "security": "enabled",
+        "webmcp_enabled": WEBMCP_ENABLED,
     }
 
 
@@ -156,7 +178,7 @@ async def get_simulation(
     Requires JWT authentication.
     """
     repo = SimulationRepository()
-    data = repo.get(simulation_id)
+    data = repo.get(simulation_id, user.id)
 
     if not data:
         raise HTTPException(status_code=404, detail="Simulation not found")
@@ -177,6 +199,7 @@ async def get_simulation(
 async def simulation_status_stream(
     simulation_id: str,
     repo: SimulationRepository,
+    user_id: str,
     timeout_seconds: int = 300,  # 5 minutos max
 ) -> AsyncGenerator[str, None]:
     """
@@ -203,7 +226,7 @@ async def simulation_status_stream(
             break
 
         # Buscar status atual
-        data = repo.get(simulation_id)
+        data = repo.get(simulation_id, user_id)
 
         if not data:
             yield f"event: error\ndata: {json.dumps({'error': 'Simulation not found'})}\n\n"
@@ -274,14 +297,14 @@ async def stream_simulation_status(
     repo = SimulationRepository()
 
     # Verificar se simulação existe
-    data = repo.get(simulation_id)
+    data = repo.get(simulation_id, user.id)
     if not data:
         raise HTTPException(status_code=404, detail="Simulation not found")
 
     print(f"[SSE] User {user.email} connected to stream for simulation {simulation_id}")
 
     return StreamingResponse(
-        simulation_status_stream(simulation_id, repo),
+        simulation_status_stream(simulation_id, repo, user.id),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

@@ -3,12 +3,16 @@ __pycache__/
 *.pyc
 .env
 .env.local
+.env.production
+*.env.production
 .DS_Store
 dist/
 .coverage
 .pytest_cache/
 .vercel/
+supabase/.temp/
 .next/
+*.tsbuildinfo
 .venv/
 *.log
 logs/

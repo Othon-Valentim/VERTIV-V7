@@ -2,9 +2,9 @@
 
 ## Pré-requisitos
 - Node.js 18+ instalado
-- Conta Vercel (team: Palmáceas' projects)
-- Repo GitHub: github.com/Othon-Valentim/vertiv-platform.git
-- Backend rodando em: https://api.vertiv.tech
+- Conta Vercel
+- Repo GitHub: <REPO_URL>
+- Backend rodando em: <API_BASE_URL>
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Passo 1 — Commit das alterações
 ```bash
-cd C:\Users\Jussara Thomaz\Documents\VERTIV_V6_GLOBAL
+cd <PROJECT_ROOT>
 git add apps/frontend/next.config.js
 git commit -m "fix: remove standalone output for Vercel compatibility"
 git push origin master
@@ -21,7 +21,7 @@ git push origin master
 ### Passo 2 — Criar projeto na Vercel
 1. Acesse https://vercel.com/new
 2. Clique em **"Import Git Repository"**
-3. Selecione o repositório `vertiv-platform`
+3. Selecione o repositório `<REPO_NAME>`
 4. Configure:
    - **Framework Preset:** Next.js
    - **Root Directory:** `apps/frontend` ← IMPORTANTE!
@@ -34,10 +34,13 @@ Na seção "Environment Variables" antes de clicar Deploy, adicione:
 
 | Variável | Valor |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `https://api.vertiv.tech` |
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://nutilcpmpapjowqmxoqf.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGlsY3BtcGFwam93cW14b3FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NDg1OTksImV4cCI6MjA4MTUyNDU5OX0.VhvEhOJOLc_Xkf2BvMQs4IbqcJtnmSEXPNfMwvuPXgY` |
-| `NEXT_PUBLIC_DOMAIN` | `vertiv.tech` |
+| `NEXT_PUBLIC_API_URL` | `<API_BASE_URL>` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `<NEXT_PUBLIC_SUPABASE_URL>` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `<NEXT_PUBLIC_SUPABASE_ANON_KEY>` |
+| `NEXT_PUBLIC_DOMAIN` | `<NEXT_PUBLIC_DOMAIN>` |
+| `NEXT_PUBLIC_WEBMCP_ENABLED` | `false` |
+
+> Use apenas placeholders neste arquivo. Valores reais devem ser configurados em Vercel Environment Variables ou em arquivos `.env` locais e nunca commitados.
 
 ### Passo 4 — Deploy!
 Clique **"Deploy"** e aguarde o build completar (~2-3 min).
@@ -58,7 +61,7 @@ vercel login
 
 ### Passo 3 — Commit e push primeiro
 ```bash
-cd C:\Users\Jussara Thomaz\Documents\VERTIV_V6_GLOBAL
+cd <PROJECT_ROOT>
 git add apps/frontend/next.config.js
 git commit -m "fix: remove standalone output for Vercel compatibility"
 git push origin master
@@ -72,7 +75,7 @@ vercel --yes
 
 Quando perguntar:
 - **Set up and deploy?** → Y
-- **Which scope?** → Palmáceas' projects
+- **Which scope?** → <VERCEL_ORG_ID>
 - **Link to existing project?** → N (criar novo)
 - **Project name?** → vertiv-frontend
 - **In which directory is your code located?** → ./ (já está em apps/frontend)
@@ -80,16 +83,19 @@ Quando perguntar:
 ### Passo 5 — Configurar variáveis de ambiente
 ```bash
 vercel env add NEXT_PUBLIC_API_URL production
-# Cole: https://api.vertiv.tech
+# Cole: <API_BASE_URL>
 
 vercel env add NEXT_PUBLIC_SUPABASE_URL production
-# Cole: https://nutilcpmpapjowqmxoqf.supabase.co
+# Cole: <NEXT_PUBLIC_SUPABASE_URL>
 
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
-# Cole: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51dGlsY3BtcGFwam93cW14b3FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NDg1OTksImV4cCI6MjA4MTUyNDU5OX0.VhvEhOJOLc_Xkf2BvMQs4IbqcJtnmSEXPNfMwvuPXgY
+# Cole: <NEXT_PUBLIC_SUPABASE_ANON_KEY>
 
 vercel env add NEXT_PUBLIC_DOMAIN production
-# Cole: vertiv.tech
+# Cole: <NEXT_PUBLIC_DOMAIN>
+
+vercel env add NEXT_PUBLIC_WEBMCP_ENABLED production
+# Cole: false
 ```
 
 ### Passo 6 — Redeploy com variáveis
@@ -99,13 +105,13 @@ vercel --prod
 
 ---
 
-## Configurar Domínio app.vertiv.tech
+## Configurar Domínio app.<NEXT_PUBLIC_DOMAIN>
 
 ### Na Vercel:
 ```bash
-vercel domains add app.vertiv.tech
+vercel domains add app.<NEXT_PUBLIC_DOMAIN>
 ```
-Ou no Dashboard: Settings → Domains → Add → `app.vertiv.tech`
+Ou no Dashboard: Settings → Domains → Add → `app.<NEXT_PUBLIC_DOMAIN>`
 
 ### No seu DNS (registrador do domínio):
 Adicione um registro CNAME:
@@ -116,7 +122,7 @@ Valor: cname.vercel-dns.com
 TTL: 300
 ```
 
-Se quiser `vertiv.tech` (apex/raiz) também na Vercel:
+Se quiser `<NEXT_PUBLIC_DOMAIN>` (apex/raiz) também na Vercel:
 ```
 Tipo: A
 Nome: @
@@ -133,10 +139,10 @@ No backend FastAPI, verifique o `allow_origins`:
 
 ```python
 origins = [
-    "https://vertiv.tech",
-    "https://app.vertiv.tech",
-    "https://www.vertiv.tech",
-    "https://vertiv-frontend-*.vercel.app",  # preview deploys
+    "https://<NEXT_PUBLIC_DOMAIN>",
+    "https://app.<NEXT_PUBLIC_DOMAIN>",
+    "https://www.<NEXT_PUBLIC_DOMAIN>",
+    "https://<VERCEL_PREVIEW_DOMAIN>",  # preview deploys
     "http://localhost:3000",  # dev local
 ]
 ```
@@ -147,27 +153,38 @@ origins = [
 
 Após o deploy estar live:
 
-1. Acesse `https://app.vertiv.tech` (ou a URL temporária da Vercel)
+1. Acesse `https://app.<NEXT_PUBLIC_DOMAIN>` (ou a URL temporária da Vercel)
 2. Faça login
 3. Vá para Dashboard → Upload
 4. Faça upload de um arquivo ZIP de teste
-5. Confirme que o pipeline de simulação inicia
-6. Verifique no Network tab do DevTools que as chamadas vão para `api.vertiv.tech`
+5. Confirme que a ingestão V7 cria um `ingestion_id`
+6. Verifique no Network tab do DevTools que as chamadas vão para `<API_BASE_URL>`
+7. Abra `/dashboard/audit/<ingestion_id>` e confirme que a sentença ou estado de auditoria aparece
 
 ### Teste rápido via curl:
 ```bash
 # Testar se o frontend responde
-curl -I https://app.vertiv.tech
+curl -I https://app.<NEXT_PUBLIC_DOMAIN>
 
 # Testar se o backend responde
-curl https://api.vertiv.tech/health
+curl <API_BASE_URL>/health
 
 # Testar CORS
-curl -H "Origin: https://app.vertiv.tech" \
+curl -H "Origin: https://app.<NEXT_PUBLIC_DOMAIN>" \
      -H "Access-Control-Request-Method: POST" \
      -X OPTIONS \
-     https://api.vertiv.tech/api/v1/simulations/upload
+     <API_BASE_URL>/api/v7/ingest
 ```
+
+## Gate antes de promover
+
+Execute localmente, com o frontend rodando em `http://localhost:3000` para o E2E:
+
+```bash
+npm run test:v7
+```
+
+O gate V7 cobre backend de ingestão/revisão/WebMCP, worker de extração/fila e o fluxo Playwright mockado de upload até auditoria.
 
 ---
 

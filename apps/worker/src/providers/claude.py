@@ -1,47 +1,24 @@
 """
-VERTIV V7 — Claude Provider (Anthropic Claude Opus 4.6)
-Premium fallback for large documents. 1M context window.
+VERTIV V7 — Claude Provider placeholder.
+
+Claude is intentionally not part of the V7.0 production fallback path until a
+real Anthropic SDK implementation is added and covered by tests.
 """
 
-import os
-import json
 import logging
-import asyncio
 from typing import Any, Dict
-
-from apps.worker.src.providers.base import LLMProvider
 
 logger = logging.getLogger("vertiv.providers.claude")
 
-SYSTEM_INSTRUCTION = (
-    "Você é um Analista de Risco Institucional Sênior da VERTIV. "
-    "Sua única função é extrair dados estritamente factuais dos documentos (Data Room) "
-    "que lhe são fornecidos. Você receberá o texto bruto de PDFs de aquisição de terrenos "
-    "e estudos de viabilidade. "
-    "NUNCA INVENTE NÚMEROS. Se a informação não estiver presente no texto, retorne null. "
-    "O retorno deve ser puramente o JSON de acordo com o schema esperado, "
-    "contendo os campos vitais da struct financeira."
-)
 
+class ClaudeProvider:
+    """Non-production placeholder for future Anthropic extraction."""
 
-class ClaudeProvider(LLMProvider):
-    """
-    Anthropic Claude Opus 4.6 Provider for Data Room Extraction.
-    Premium fallback — optimal for large documents (150k–900k tokens).
-    Uses 1M context window for complex Data Rooms.
-    """
-
-    def __init__(self) -> None:
-        self.api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        self.model_name = os.getenv("CLAUDE_MODEL", "anthropic/claude-opus-4-6")
-        if not self.api_key:
-            logger.warning("[ClaudeProvider] ANTHROPIC_API_KEY is not set.")
-
-    # ── Protocol properties ─────────────────────────────────────────────
+    is_stub = True
 
     @property
     def name(self) -> str:
-        return self.model_name
+        return "claude-4.6-sonnet"
 
     @property
     def max_context_tokens(self) -> int:
@@ -49,21 +26,16 @@ class ClaudeProvider(LLMProvider):
 
     @property
     def cost_per_million_tokens_input(self) -> float:
-        return 15.00  # USD per million input tokens (Opus)
+        return 5.00  # USD per million input tokens
 
     @property
     def cost_per_million_tokens_output(self) -> float:
-        return 75.00  # USD per million output tokens (Opus)
-
-    # ── Protocol methods ────────────────────────────────────────────────
+        return 25.00  # USD per million output tokens
 
     async def health_check(self) -> bool:
-        """Validate API key presence."""
-        try:
-            return bool(self.api_key)
-        except Exception as e:
-            logger.error(f"[ClaudeProvider] Health check failed: {e}")
-            return False
+        """Claude is not production-ready in V7.0."""
+        logger.info("ClaudeProvider is disabled for V7.0 production routing.")
+        return False
 
     async def extract_structured_data(
         self,
@@ -71,74 +43,16 @@ class ClaudeProvider(LLMProvider):
         extraction_schema: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
-        Extract structured data via Claude Opus 4.6.
-        Preferred for large payloads that exceed GPT-5.4 context window.
+        Extract structured data using Claude 4.6 Sonnet.
+
+        Uses tool_use mode with Pydantic schema enforcement.
         """
-        try:
-            import anthropic
-        except ImportError:
-            raise ImportError(
-                "anthropic package not installed. Run: pip install anthropic"
-            )
-
-        client = anthropic.AsyncAnthropic(api_key=self.api_key)
-        text_content = raw_content.decode("utf-8", errors="replace")
-
-        prompt = (
-            f"Analise a seguinte Data Room de projeto imobiliário:\n\n"
-            f"=== CONTEÚDO BRUTO ===\n"
-            f"{text_content}\n\n"
-            f"=== FIM DO CONTEÚDO ===\n\n"
-            f"Extraia as informações conforme as regras do analista sênior VERTIV. "
-            f"Retorne APENAS um objeto JSON válido, sem markdown, sem explicações.\n"
-            f"Schema esperado (VertivAgenticSchema):\n"
-            f"{json.dumps(extraction_schema, indent=2)}\n"
+        logger.info(
+            f"Claude extraction: {len(raw_content)} bytes, "
+            f"schema keys: {list(extraction_schema.keys())}"
         )
 
-        max_retries = 3
-        backoff_seconds = 2
-
-        for attempt in range(max_retries):
-            try:
-                logger.info(
-                    f"[ClaudeProvider] Enviando para {self.model_name} "
-                    f"(attempt {attempt+1}/{max_retries})..."
-                )
-
-                # Use model name without provider prefix for Anthropic SDK
-                model_id = self.model_name.replace("anthropic/", "")
-
-                message = await client.messages.create(
-                    model=model_id,
-                    max_tokens=8192,
-                    temperature=0,  # Deterministic
-                    system=SYSTEM_INSTRUCTION,
-                    messages=[{"role": "user", "content": prompt}],
-                )
-
-                raw_text = message.content[0].text
-                if not raw_text or not raw_text.strip():
-                    raise ValueError("[ClaudeProvider] Empty response received.")
-
-                # Strip markdown if leaked
-                raw_json = raw_text.strip()
-                if raw_json.startswith("```json"):
-                    raw_json = raw_json[7:]
-                    raw_json = raw_json.rstrip("```").strip()
-                elif raw_json.startswith("```"):
-                    raw_json = raw_json[3:]
-                    raw_json = raw_json.rstrip("```").strip()
-
-                parsed_data = json.loads(raw_json)
-                logger.info(f"[ClaudeProvider] Extraction complete via {self.model_name}.")
-                return parsed_data
-
-            except Exception as e:
-                logger.warning(
-                    f"[ClaudeProvider] Error on attempt {attempt+1}: {e}"
-                )
-                if attempt == max_retries - 1:
-                    raise
-                await asyncio.sleep(backoff_seconds * (2 ** attempt))
-
-        return {}
+        raise RuntimeError(
+            "ClaudeProvider is a non-production placeholder in V7.0. "
+            "Configure Gemini for USE_MOCK=0 or implement Anthropic SDK support."
+        )

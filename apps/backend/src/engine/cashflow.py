@@ -169,6 +169,7 @@ class CashFlowEngine:
         irr = npf.irr(trimmed) if len(trimmed) > 1 else 0.0
         if irr is None or str(irr) == "nan":
             irr = 0.0
+        irr_annual_pct = round(float(((1 + irr) ** 12) - 1) * 100, 2)
         npv = df["pv_net_cash_flow"].sum()
         vgv = effective_units * avg_price
 
@@ -176,7 +177,8 @@ class CashFlowEngine:
             "dataframe": df.to_dicts(),
             "metrics": {
                 "irr_monthly": round(float(irr), 6),
-                "irr_annual": round(float(((1 + irr) ** 12) - 1) * 100, 2),
+                "irr_annual": irr_annual_pct,
+                "irr": irr_annual_pct,
                 "npv": round(float(npv), 2),
                 "vgv": round(float(vgv), 2),
                 "total_revenue": round(float(df["revenue_gross"].sum()), 2),

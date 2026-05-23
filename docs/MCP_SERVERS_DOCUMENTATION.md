@@ -1,181 +1,63 @@
-# MCP Servers Documentation - VERTIV v6.0
+# MCP e WebMCP no VERTIV V7
 
-**Gerado em:** 2025-12-24
-**Status:** Production Ready
-**Ambiente:** Claude Desktop + Claude Code CLI
+## Status V7.0
 
----
+WebMCP nao e feature principal do VERTIV V7.0. Ele permanece experimental,
+desligado por padrao e fora do caminho critico de ingestao, sentenca e revisao
+humana.
 
-## Visao Geral
+Flags padrao:
 
-O projeto VERTIV v6.0 utiliza o Model Context Protocol (MCP) para estender as capacidades do Claude com ferramentas especializadas.
-
----
-
-## Servidores MCP Configurados
-
-### 1. Filesystem Server
-| Propriedade | Valor |
-|-------------|-------|
-| **Package** | `@modelcontextprotocol/server-filesystem` |
-| **Funcao** | Acesso seguro ao sistema de arquivos do projeto |
-| **Diretorio** | `C:\Users\Jussara Thomaz\Documents\VERTIV_V6_GLOBAL` |
-| **Status** | ONLINE |
-
-**Capacidades:**
-- Leitura de arquivos do projeto
-- Listagem de diretorios
-- Busca de arquivos por padrao
-- Acesso restrito ao diretorio configurado
-
----
-
-### 2. Memory Server (Knowledge Graph)
-| Propriedade | Valor |
-|-------------|-------|
-| **Package** | `@modelcontextprotocol/server-memory` |
-| **Funcao** | Memoria persistente entre sessoes |
-| **Status** | ONLINE |
-
-**Capacidades:**
-- Armazenamento de entidades e relacoes
-- Grafo de conhecimento persistente
-- Contexto entre conversas
-- Recuperacao de informacoes salvas
-
----
-
-### 3. Sequential Thinking Server
-| Propriedade | Valor |
-|-------------|-------|
-| **Package** | `@modelcontextprotocol/server-sequential-thinking` |
-| **Funcao** | Raciocinio estruturado e planejamento |
-| **Status** | ONLINE |
-
-**Capacidades:**
-- Decomposicao de problemas complexos
-- Planejamento passo-a-passo
-- Analise estruturada
-- Tomada de decisao guiada
-
----
-
-### 4. Puppeteer Server
-| Propriedade | Valor |
-|-------------|-------|
-| **Package** | `puppeteer-mcp-server` |
-| **Funcao** | Automacao de navegador headless |
-| **Status** | CONFIGURADO |
-
-**Capacidades:**
-- Navegacao web automatizada
-- Screenshots de paginas
-- Extracao de dados de websites
-- Testes de interface
-
----
-
-### 5. Playwright Server
-| Propriedade | Valor |
-|-------------|-------|
-| **Package** | `@anthropic/claude-code-mcp-server-playwright` |
-| **Funcao** | Testes E2E e automacao avancada |
-| **Status** | CONFIGURADO |
-
-**Capacidades:**
-- Testes cross-browser
-- Automacao de formularios
-- Captura de screenshots/videos
-- Testes de acessibilidade
-
----
-
-## Arquivo de Configuracao
-
-**Localizacao:** `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Users\\Jussara Thomaz\\Documents\\VERTIV_V6_GLOBAL"]
-    },
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "puppeteer": {
-      "command": "npx",
-      "args": ["-y", "puppeteer-mcp-server"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/claude-code-mcp-server-playwright"]
-    }
-  }
-}
+```env
+WEBMCP_ENABLED=false
+NEXT_PUBLIC_WEBMCP_ENABLED=false
 ```
 
----
+Com essas flags desligadas:
 
-## Verificacao de Saude
+- o backend nao registra `/api/v7/webmcp/*`;
+- o backend nao registra `/api/v7/openapi/schemas`;
+- o frontend nao busca catalogo WebMCP;
+- a ausencia de `navigator.modelContext` nao afeta a aplicacao.
 
-Para verificar se os servidores estao funcionando:
+## Rotas Experimentais
 
-```powershell
-# Filesystem
-npx -y @modelcontextprotocol/server-filesystem "C:\seu\diretorio"
+Quando `WEBMCP_ENABLED=true`, as rotas ficam disponiveis apenas com usuario
+autenticado:
 
-# Memory
-npx -y @modelcontextprotocol/server-memory
+| Metodo | Rota | Finalidade |
+| --- | --- | --- |
+| `GET` | `/api/v7/webmcp/schemas` | Catalogo experimental de ferramentas WebMCP |
+| `GET` | `/api/v7/webmcp/schemas/{tool_name}` | Schema de uma ferramenta suportada |
+| `GET` | `/api/v7/openapi/schemas` | Catalogo B2B experimental |
 
-# Sequential Thinking
-npx -y @modelcontextprotocol/server-sequential-thinking
+## Ferramentas Suportadas em V7.0
+
+Somente ferramentas com suporte real entram no catalogo:
+
+| Ferramenta | Status | Observacao |
+| --- | --- | --- |
+| `simulate_what_if` | Experimental | Simulacao sem persistencia; matematica deve continuar no backend |
+| `highlight_pdf_evidence` | Experimental | Foco visual em evidencia de PDF quando a UI suportar o alvo |
+
+Ferramentas de mutacao como `approve_capital_sentence`,
+`register_kill_reason` e `override_legal_flag` permanecem fora do catalogo V7.0
+ate terem endpoint, persistencia, autorizacao e confirmacao humana testados.
+
+## Relacao com MCP Local
+
+Servidores MCP locais usados por ferramentas de desenvolvimento, como filesystem,
+browser automation ou memory, sao infraestrutura de produtividade do operador e
+nao fazem parte da superficie de produto V7.0.
+
+## Verificacao
+
+Comandos relevantes:
+
+```bash
+npm run test:v7:backend
+npm run test:v7:e2e
 ```
 
----
-
-## Troubleshooting
-
-### Servidor nao inicia
-1. Verifique se o Node.js esta instalado (v18+)
-2. Execute `npm cache clean --force`
-3. Reinstale o pacote: `npx -y <package-name>`
-
-### JSON invalido
-1. Valide o JSON: `node -e "JSON.parse(require('fs').readFileSync('config.json'))"`
-2. Verifique virgulas e chaves
-
-### Servidor nao aparece no Claude Desktop
-1. Feche completamente o Claude Desktop
-2. Verifique o arquivo de config em `%APPDATA%\Claude\`
-3. Reinicie o Claude Desktop
-
----
-
-## Dependencias
-
-| Dependencia | Versao Minima |
-|-------------|---------------|
-| Node.js | v18.0.0+ |
-| npm | v8.0.0+ |
-| npx | v8.0.0+ |
-
----
-
-## Changelog
-
-### 2025-12-24
-- Configuracao inicial dos 5 servidores MCP
-- Validacao e health check realizado
-- Documentacao gerada automaticamente
-
----
-
-**Gerado por:** AGENTE 5 - MCPDocumentationGenerator
-**Projeto:** VERTIV v6.0 - GLOBAL EDITION
+O backend possui testes garantindo que as rotas WebMCP nao sao registradas por
+padrao e que o catalogo nomeado nao expõe ferramentas sem suporte produtivo.

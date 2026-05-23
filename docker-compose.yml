@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -13,6 +13,10 @@ services:
       - ENV=development
       - PORT=8000
       - WORKER_URL=http://worker:8000/tasks/process-simulation
+      - WEBMCP_ENABLED=${WEBMCP_ENABLED:-false}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
     networks:
       - vertiv-network
 
@@ -27,6 +31,7 @@ services:
       - ./apps/frontend/src:/app/src
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_WEBMCP_ENABLED=${NEXT_PUBLIC_WEBMCP_ENABLED:-false}
     networks:
       - vertiv-network
     depends_on:
@@ -45,6 +50,14 @@ services:
     environment:
       - ENV=development
       - PORT=8000
+      - USE_MOCK=${USE_MOCK:-1}
+      - WORKER_ID=${WORKER_ID:-docker-worker-1}
+      - WORKER_POLL_INTERVAL_SECONDS=${WORKER_POLL_INTERVAL_SECONDS:-3}
+      - MAX_WORKER_ATTEMPTS=${MAX_WORKER_ATTEMPTS:-2}
+      - WORKER_STALE_MINUTES=${WORKER_STALE_MINUTES:-30}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     networks:
       - vertiv-network
 
